@@ -16,7 +16,7 @@ resume: true
 resume-external: true
 resume-url: assets/pdfs/Piyush-Resume08.pdf
 
-url: http://ipiyush.com
+url: https://ipiyush.com
 # your url: http://USERNAME.github.io
 
 permalink: /:title/
