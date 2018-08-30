@@ -4,28 +4,9 @@ layout: page
 ---
 <!-- ![Profile Image]({{ site.url }}/{{ site.picture }}) -->
 
-<p>I'm currently studying Information Technology Engineering at GGSIPU, Delhi, India. I’m an active open source developer, created some of my own open source projects and contribute to different open source projects including phpmyadmin, fossasia, flarum to improve my skill set. I’m also shortlisted under top 2 for WorldSkills 2017 in Web Designing and Development from India.</p>
-
-
-<h2>Skills</h2>
-
-<ul class="skill-list">
-	<li>HTML - Jade - Haml</li>
-	<li>Responsive (Mobile First)</li>
-	<li>CSS (Stylus, Sass, Less)</li>
-	<li>Css Frameworks (Bootstrap, Foundation)</li>
-	<li>Javascript (Design Patterns, Testes)</li>
-	<li>NodeJS</li>
-	<li>AngularJS - ReactJS</li>
-	<li>Grunt - Gulp - Yeoman</li>
-	<li>Git</li>
-	<li>PHP</li>
-	<li>Python</li>
-	<li>MySQL - MongoDB</li>
-	<li>Django, Flask</li>
-	<li>Laravel 5</li>
-	<li>TDD e Continuous Integration</li>
-	<li>C++, Android</li>
-</ul>
+<p>A person with a habit of making things easy and interesting. I observe and learn. I can learn different techniques, skills and try to acquire some habits of them which makes me very comfortable to be part of any team. 
+I have experience in Full Stack Development as well as frontend development from working for different startups. I co-founded one social entrepreneurship based project KhareedTo.co. I have completed my Google Summer of Code 2017 at FOSSASIA in Python based project and currently, Google Code-in mentor at FOSSASIA.
+I started all with using open source software mainly written in PHP, using them and their limitations made me learn PHP to improve and create my own tailored scripts for myself. Different ideas to create or replicate different projects made me learn things beyond just PHP i.e, moved forward to Javascript and NodeJS thus working on asynchronous scripts and now Python these days.
+I have a keen interest in the Cloud Security, Cryptography, Artificial Intelligence, and Algorithms. One of the existing aspects of programming is to find an optimal solution from various possible approaches to the problem and experimenting with different problems makes it really interesting.</p>
 
 
