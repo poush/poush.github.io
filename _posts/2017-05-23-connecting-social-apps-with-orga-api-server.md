@@ -4,11 +4,7 @@ layout: post
 categories:
 - fossasia
 - OAuth
-tag:
-- fossasia
-- API-server
-- OAuth
-- social-apps
+tags: fossasia API-server OAuth social-apps
 author: poush
 star: 'true'
 date: '2017-05-23 04:11:24'
@@ -25,7 +21,7 @@ A feature which will allow us to provide Organizer options to connect with their
 __*Platforms added*__
 * **F**aceBook
 * **T**witter
-* **I**nstagram 
+* **I**nstagram
 * **G**oogle+
 
 ### The Auth Tool - OAuth 2.0
@@ -87,7 +83,7 @@ def update_user_details(first_name=None,
 __Make sure we have all views(routes) to connect these 4 social medias__
 
 This has to be done on ```views/users/profile.py```
-Addition of one method 
+Addition of one method
 ```
 @profile.route('/google_connect/', methods=('GET', 'POST'))
 def google_connect():

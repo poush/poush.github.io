@@ -3,8 +3,7 @@ title: Generating Ticket PDFs in Open Event API Server
 layout: post
 author: poush
 permalink: /generating-ticket-pdfs-in-open-event-api-server/
-tags:
-- python, flask, fossasia, gsoc, open-event, api server, html, pdf, xhtml2pdf, send tickets
+tags: python flask fossasia gsoc open-event api server html pdf xhtml2pdf send tickets
 source-id: 1SxFw8p8bBl2YJtoQa9n9lZt5sDiYdwiJ4WSyLu9v53s
 published: true
 ---
@@ -102,7 +101,9 @@ send_email(
 
 ### References
 
-1. Readme - xhtml2pdf[https://github.com/xhtml2pdf/xhtml2pdf/blob/master/README.rst](https://github.com/xhtml2pdf/xhtml2pdf/blob/master/README.rst)
+1. Readme - xhtml2pdf
+[https://github.com/xhtml2pdf/xhtml2pdf/blob/master/README.rst](https://github.com/xhtml2pdf/xhtml2pdf/blob/master/README.rst)
 
-2. Using xhtml2pdf and create pdfs[https://micropyramid.com/blog/generating-pdf-files-in-python-using-xhtml2pdf/](https://micropyramid.com/blog/generating-pdf-files-in-python-using-xhtml2pdf/)
+2. Using xhtml2pdf and create pdfs
+[https://micropyramid.com/blog/generating-pdf-files-in-python-using-xhtml2pdf/](https://micropyramid.com/blog/generating-pdf-files-in-python-using-xhtml2pdf/)
 

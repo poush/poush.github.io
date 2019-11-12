@@ -1,0 +1,14 @@
+
+<div class="filebox">
+    <div class="full"></div>
+    <div class="sidebar">
+        <div class="controls">
+            <a class="red" onclick="window.close()"><i>x</i></a>
+        </div>
+        {% include nav.html %}
+    </div>
+    <div class="content">
+        {{ content }}
+        {% include pagination.html %}
+    </div>
+</div>

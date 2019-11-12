@@ -3,8 +3,7 @@ title: A guide to use Permission Manager in Open Event API Server
 layout: post
 author: poush
 permalink: /a-guide-to-use-permission-manager-in-open-event-api-server/
-tags:
-- gsoc, python, open event, api server, permissions, usage guide, protecting endpoints, python-flask
+tags: gsoc python open event api server permission guide protecting endpoints flask
 source-id: 1L-EsfeOWFNJQoGg_xdoiY-DYoKb-aD5wPCM0LBFfT8E
 published: true
 ---
@@ -22,9 +21,11 @@ Permission manager as a part of flask-rest-jsonapi works as a decorator for diff
 
     *                                 fetch_as="event_id", model=StripeAuthorization),)
 
-* Second way is to explicitly provide it as a decorator to any view 
+* Second way is to explicitly provide it as a decorator to any view
 
-    * **@api.has_permission**('custom_arg', custom_kwargs='custom_kwargs')    **def** get(*args, **kwargs):        **return** 'Hello world !'
+    * **@api.has_permission**('custom_arg', custom_kwargs='custom_kwargs')
+    **def** get(*args, **kwargs):
+        **return** 'Hello world !'
 
 In the process of booting up, we first need to understand the flow of Resources in API. All resources even before doing any schema check, call the decorators. So this way you will not get any request data in the permission methods. All you will receive is a **dict** of the URL parameters but again it will not include the filter parameters.
 
@@ -50,9 +51,11 @@ Using permission manager is basically understanding the different options you ca
 
 These are all described in the order of priority in permission manager
 
-1. **m****ethod (string)**: You can provide a string containing the methods where permission needs to be checked as comma separated values of different methods in a string.For example: **_method=_***"GET,POST”*
+1. **m****ethod (string)**: You can provide a string containing the methods where permission needs to be checked as comma separated values of different methods in a string.
+For example: **_method=_***"GET,POST”*
 
-2. **l****eave_if (lambda): **This receives a lambda function which should return boolean values. Based on returned value if is true then **it will skip the permission check. **The provided lambda function receives only parameter, *"view_kwargs" *Example use case can be the situation where you can leave the permission for any specific related endpoint to some resource and would like to do a manual check in the method itself.
+2. **l****eave_if (lambda): **This receives a lambda function which should return boolean values. Based on returned value if is true then **it will skip the permission check. **The provided lambda function receives only parameter, *"view_kwargs"
+*Example use case can be the situation where you can leave the permission for any specific related endpoint to some resource and would like to do a manual check in the method itself.
 
 3. **c****heck (lambda): **Opposite to leave_if. It receives a lambda function that will return boolean values. Based on returned value, If it is true then only it will go further and check the request for permissions else **will throw forbidden error.**
 
@@ -60,7 +63,10 @@ These are all described in the order of priority in permission manager
 
 5. **f****etch_as (string): **This is the string containing the name of a key. The value of **fetch** key will be sent to the permission functions by this name.
 
-6. **m****odel (string): **This is one most interesting concept here. To get the value of **fetch **key. Permission manager first looks into **view_kwargs **and if there no such value then you can still get one through the model. The model attribute here receives the class of the database model which will be used to get the value of **fetch** key.It makes the query to get the single resource from this model and look for the value of **fetch** key and then pass it to the permission functions/methods.The interesting part is that by default it uses <*id> *from view_kwargs to get the resource from the model but in any case if there is no specific ID with name <id> on the view_kwargs. You can use these two options as:
+6. **m****odel (string): **This is one most interesting concept here. To get the value of **fetch **key. Permission manager first looks into **view_kwargs **and if there no such value then you can still get one through the model. The model attribute here receives the class of the database model which will be used to get the value of **fetch** key.
+It makes the query to get the single resource from this model and look for the value of **fetch** key and then pass it to the permission functions/methods.
+
+The interesting part is that by default it uses <*id> *from view_kwargs to get the resource from the model but in any case if there is no specific ID with name <id> on the view_kwargs. You can use these two options as:
 
     1. **f****etch_key_url (string): **This is the name of the key whose value will be fetched from view_kwargs and will be used to match through the records in database model to get the resource.
 
@@ -98,5 +104,6 @@ This clearly needs time to make it. But I see this as an interesting way to add 
 
 ### Resources:
 
-* Permission manager - Flask-rest-jsonapi module[http://flask-rest-jsonapi.readthedocs.io/en/latest/permission.html](http://flask-rest-jsonapi.readthedocs.io/en/latest/permission.html)
+* Permission manager - Flask-rest-jsonapi module
+[http://flask-rest-jsonapi.readthedocs.io/en/latest/permission.html](http://flask-rest-jsonapi.readthedocs.io/en/latest/permission.html)
 

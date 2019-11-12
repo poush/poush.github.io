@@ -2,21 +2,16 @@
 title: Using HTTMock to mock 3rd Party APIs
 layout: post
 author: poush
-tag:
-- fossasia
-- HTTMock
-- tech
-- API-server
-- open-event
+tags: fossasia HTTMock tech API-server open-event
 ---
 
 In the process of implementing the connected social media in API server. There was a situation where we need to mock the 3rd party API services like Google OAuth, Facebook Graph API.
 
-The idea was simple, as suggested by  [@hongquan](https://github.com/hongquan),  when ```requests``` make a __HTTP__ request to _https://api.google.com/profile_, for example, [httmock](https://github.com/patrys/httmock) will 
+The idea was simple, as suggested by  [@hongquan](https://github.com/hongquan),  when ```requests``` make a __HTTP__ request to _https://api.google.com/profile_, for example, [httmock](https://github.com/patrys/httmock) will
 
-- stand in the middle, 
-- stop request from going to the Internet, 
-- and returns a JSON response as if the response is from Google. 
+- stand in the middle,
+- stop request from going to the Internet,
+- and returns a JSON response as if the response is from Google.
 
 
 The content of this response is written by us in the test case. We have to read Google documentation to write a correct fake response.
@@ -79,7 +74,7 @@ To use this setup all we need to do is:
 ```python
  with HTTMock(google_auth_mock, google_profile_mock):
                  self.assertTrue('Open Event' in self.app.get('/gCallback/?state=dummy_state&code=dummy_code',
-                                                           follow_redirects=True).data) 
+                                                           follow_redirects=True).data)
              self.assertEqual(self.app.get('/gCallback/?state=dummy_state&code=dummy_code').status_code, 302)
              self.assertEqual(self.app.get('/gCallback/?state=dummy_state&code=dummy_code').status_code, 302)
 ```

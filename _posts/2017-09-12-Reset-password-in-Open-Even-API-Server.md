@@ -3,8 +3,7 @@ title: Reset password in Open Even API Server
 layout: post
 author: poush
 permalink: /reset-password-in-open-even-api-server/
-tags:
-- python, flask, gsoc, open-event, api-server, reset-password, forgot password,  new password, reset token
+tags: python flask gsoc open-event api-server reset-password forgot password reset token
 source-id: 1HF0_EbNpL2JL1DwE_CRYF2jI2N6sMChh7l8YCppqWvo
 published: true
 ---
@@ -34,7 +33,7 @@ The token with the direct link will be sent to registered email.
 
 link = make_frontend_url('/reset-password', {'token': user.reset_password})
 
-send_email_with_action(user, PASSWORD_RESET,     
+send_email_with_action(user, PASSWORD_RESET,
 
                                         app_name=get_settings()['app_name'], link=link)
 
@@ -70,7 +69,9 @@ else:
 
 ### References
 
-1. Understand Self-service reset password[https://en.wikipedia.org/wiki/Self-service_password_reset](https://en.wikipedia.org/wiki/Self-service_password_reset)
+1. Understand Self-service reset password
+[https://en.wikipedia.org/wiki/Self-service_password_reset](https://en.wikipedia.org/wiki/Self-service_password_reset)
 
-2. Python - getrandbits()[https://docs.python.org/2/library/random.html](https://docs.python.org/2/library/random.html)
+2. Python - getrandbits()
+[https://docs.python.org/2/library/random.html](https://docs.python.org/2/library/random.html)
 

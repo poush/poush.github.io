@@ -1,39 +1,22 @@
-<nav class="{% if page.title == "Home" %}nav-home{% else %}nav{% endif %}">
-    <ul class="list">
-        {% if page.title != "Home" %}
-            <li class="item">
-                <a class="link" href="{{ site.url }}/">Home</a>
-            </li>
-        {% endif %}
+{% if page.path == "index.html" %}
+{% assign lihome = "active" %}
+{% endif %}
 
-        {% if site.blog == true %}
-            {% if page.title != "Blog" %}
-                <li class="item">
-                    <a class="link" href="{{ site.url }}/blog">Blog</a>
-                </li>
-            {% endif %}
-        {% endif %}
+{% if page.path == "resume.html" || page.path == "resume" %}
+{% assign liresume = "active" %}
+{% endif %}
 
-        {% if site.projects == true %}
-            {% if page.title != "Projects" %}
-                <li class="item">
-                    <a class="link" href="{{ site.url }}/projects">Projects</a>
-                </li>
-            {% endif %}
-        {% endif %}
+{% if page.path == "blog/index.html" || page.path == "blog" %}
+{% assign liblog = "active" %}
+{% endif %}
 
-        {% if site.about == true %}
-            {% if page.title != "About" %}
-                <li class="item">
-                    <a class="link" href="{{ site.url }}/about">About</a>
-                </li>
-            {% endif %}
-        {% endif %}
 
-        {% if site.resume == true %}
-            <li class="item">
-                <a class="link" target="blank" href="{% if site.resume-external %}{{ site.resume-url }}{% else %}{{ site.url }}/{{ site.resume-url }}{% endif %}">Résumé</a>
-            </li>
-        {% endif %}
-    </ul>
-</nav>
+
+
+<ul>
+    <!-- <li class="{{lihome}}"> <i class="fab fa-readme white"></i> README.md</li> -->
+    <li class="{{lihome}}"> <a href="/"> <i class="fab fa-readme white "></i>README.md </a></li>
+    <li class="{{liblog}}"> <a href="/blog"> <i class="fa fa-keyboard white "></i>From my keyboard </a></li>
+    <li class="{{liresume}}"> <a href="/resume"> <i class="fa fa-file white"></i> Resume/CV <a style="float:right; color: white" href="/assets/resume.pdf"><i class="fas fa-external-link-alt"></i></a> </a></li>
+    <!-- <li> <i class="fa fa-terminal white"></i> About me </li> -->
+</ul>

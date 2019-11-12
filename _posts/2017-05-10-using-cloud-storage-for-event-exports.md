@@ -3,11 +3,7 @@ title: Using Cloud storage for event exports
 layout: post
 date: '2017-05-09 13:26:44 +0530'
 categories: fossasia
-tag:
-- fossasia
-- tech
-- open-event
-- tech
+tags: fossasia tech open-event tech
 star: true
 author: poush
 ---
@@ -20,7 +16,7 @@ Till now the main issue was related with storage of those export zip files. All 
 
 On a mission to solve this, I made three simple steps that I followed to solve this issue.
 
-These three steps were: 
+These three steps were:
 > 1. Wait for **shutil.make_archive** to complete archive and store it in local storage.
 > 2. Copy the created archive to storage ( specified by user )
 > 3. Delete local archive created.
@@ -37,13 +33,13 @@ def upload(uploaded_file, key, **kwargs):
 The most important logic of this issue resides to this code snippet.
 ```
     dir_path = dir_path + ".zip"
- 
+
      storage_path = UPLOAD_PATHS['exports']['zip'].format(
          event_id = event_id
      )
      uploaded_file = UploadedFile(dir_path, dir_path.rsplit('/', 1)[1])
      storage_url = upload(uploaded_file, storage_path)
- 
+
     if get_settings()['storage_place'] != "s3" or get_settings()['storage_place'] != 'gs':
         storage_url = app.config['BASE_DIR'] + storage_url.replace("/serve_","/")
     return storage_url

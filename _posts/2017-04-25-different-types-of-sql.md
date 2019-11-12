@@ -4,11 +4,7 @@ layout: post
 categories: intro sql
 date:   2017-04-25 13:26:44 +0530
 categories: general windows
-tag:
-- sql
-- DDL
-- DML
-- DCL
+tags: sql DDL DML DCL
 star: true
 author: poush
 ---
@@ -16,7 +12,7 @@ author: poush
 
 Structured Query Language (aka "SQL") is created for managing RDBMS ( Relational Database Management Systems )
 
-From Wikipedia, 
+From Wikipedia,
 > Originally based upon relational algebra and tuple relational calculus, SQL consists of a data definition language, data manipulation language, and data control language. The scope of SQL includes data insert, query, update and delete, schema creation and modification, and data access control. Although SQL is often described as, and to a great extent is, a declarative language (4GL), it also includes procedural elements.
 
 Looks Good!
@@ -56,13 +52,13 @@ These commands manage the access to your database. Generally applied to database
 * REVOKE
 * CREATE SYNONYM
 
-That's all summarized for three different types of SQL commands. 
+That's all summarized for three different types of SQL commands.
 
 ## Wait!
-You see SELECT command anywhere? If you are familiar with SQL then you might know about most used command, The "SELECT" command and if you see the lists above you will not find it in any category.  Well there is another category called  
+You see SELECT command anywhere? If you are familiar with SQL then you might know about most used command, The "SELECT" command and if you see the lists above you will not find it in any category.  Well there is another category called
 ### DQL - Data Query language
 
 Comprises only one command ***SELECT*** but is most used and most concentrated for SQL users. With different options and clauses, it is used to make queries (inquiries) to the database.
 
-Take the simple example, when you open a website page then the SELECT queries are made to get user data, website configurations, data to shown on web page. Complex and large data require joins and multiple queries. 
+Take the simple example, when you open a website page then the SELECT queries are made to get user data, website configurations, data to shown on web page. Complex and large data require joins and multiple queries.
 And yes number of queries can be reduced by different techniques but we will discuss it later :)

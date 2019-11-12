@@ -4,11 +4,7 @@ title:  "Setting up Oracle 11g in Windows"
 date:   2017-04-25 13:26:44 +0530
 categories: general windows
 layout: post
-tag:
-- oracle
-- database
-- express
-- windows
+tags: oracle-database express windows
 star: true
 author: poush
 ---
@@ -16,10 +12,10 @@ author: poush
 A short simple guide to set up oracle database 11g on your windows system.
 
 ## 1. Downloading Oracle 11g express
-Go to this [page](http://www.oracle.com/technetwork/database/database-technologies/express-edition/downloads/index.html) to get download links 
+Go to this [page](http://www.oracle.com/technetwork/database/database-technologies/express-edition/downloads/index.html) to get download links
 
 
-Choose *x64* if you have 64bit system or *x32* for 32bit system. If you are not sure just select *x32* one. 
+Choose *x64* if you have 64bit system or *x32* for 32bit system. If you are not sure just select *x32* one.
 
 You will be required to signup and login to download this
  ![Signin](https://www.dropbox.com/s/lo2fjnqbbd9y5so/Capture-2.PNG?dl=1)

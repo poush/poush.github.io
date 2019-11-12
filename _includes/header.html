@@ -1,26 +1,13 @@
-{% if page.title == "Home"
-   or page.title == "Blog"
-   or page.title == "Projects"
-   or page.title == "Tags"
-%}{% assign showHeader = true %}{% endif %}
+<div class="site-header">
+  <div class="wrapper wrapper-header">
+    <a class="site-title" rel="author" href="{{ "/" | relative_url }}"><span class="muted">~/Users/</span>{{ site.title | escape }}<b class="command_prompt"></b><b class="blinking_cursor">_</b></a>
 
-{% if showHeader == true %}
-    <header class="header-home {% if site.animation %}animated{% endif %}">
-        {% if site.about %}
-            <a class="link" href="{{ site.url }}/about">
-                <img class="selfie" alt="{{ site.name }}" src="{% if site.external-image %}{{ site.picture }}{% else %}{{ site.url }}/{{ site.picture }}{% endif %}" />
-            </a>
-        {% else %}
-            <span class="link">
-                <img class="selfie" alt="{{ site.name }}" src="{% if site.external-image %}{{ site.picture }}{% else %}{{ site.url }}/{{ site.picture }}{% endif %}" />
-            </span>
-        {% endif %}
+    {% include author.html %}
+  </div>
+</div>
 
-        <h1 class="title">{{ site.name }}</h1>
-        <h2 class="description">{{ site.bio }}</h2>
 
-        {% include social-links.html %}
-    </header>
-{% endif %}
+<!-- <span class="social_links">
+    {% for link in site.dash.social_links %}<a class="color-{{ link.color }}-hover" href="{{ link.url }}"><i class="fab fa-{{ link.icon }}"></i></a>{% endfor %}
+</span> -->
 
-{% include nav.html %}
