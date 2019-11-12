@@ -22,7 +22,7 @@
 </head>
 <body><div class="site-header">
   <div class="wrapper wrapper-header">
-    <a class="site-title" rel="author" href="/"><span class="muted">~/Users/</span>Piyush Agrawal<b class="command_prompt"></b><b class="blinking_cursor">_</b></a>
+    <a class="site-title" rel="author" href="/"><span class="muted">/Users/</span>Piyush Agrawal<b class="command_prompt"></b><b class="blinking_cursor">_</b></a>
 
     <div class="author-box">
 
@@ -43,14 +43,15 @@
 <main class="page-content" aria-label="Content">
       <div class="wrapper">
 
-        
-<div class="filebox">
-    <div class="full"></div>
-    <div class="sidebar">
-        <div class="controls">
-            <a class="red" onclick="window.close()"><i>x</i></a>
-        </div>
-        
+        <div class="filebox">
+  <div class="full"></div>
+  <div class="sidebar">
+    <div class="controls">
+      <a class="red" onclick="window.close()"></a>
+      <a onclick="window.close()"></a>
+      <a class="green" onclick="window.close()"></a>
+    </div>
+    
 
 
 
@@ -60,16 +61,20 @@
 
 
 <ul>
+    
     <!-- <li class="active"> <i class="fab fa-readme white"></i> README.md</li> -->
     <li class="active"> <a href="/"> <i class="fab fa-readme white "></i>README.md </a></li>
     <li class=""> <a href="/blog"> <i class="fa fa-keyboard white "></i>From my keyboard </a></li>
-    <li class=""> <a href="/resume"> <i class="fa fa-file white"></i> Resume/CV <a style="float:right; color: white" href="/assets/resume.pdf"><i class="fas fa-external-link-alt"></i></a> </a></li>
+    <li class=""> <a href="/resume"> <i class="fa fa-file white"></i> Resume/CV <a
+                style="float:right; color: white" href="/assets/resume.pdf"><i class="fas fa-external-link-alt"></i></a>
+        </a></li>
     <!-- <li> <i class="fa fa-terminal white"></i> About me </li> -->
-</ul>
+    
 
-    </div>
-    <div class="content">
-        <pre>
+</ul>
+  </div>
+  <div class="content">
+    <pre>
 <code class="markdown">
 <h2 style="margin:0">## hello world</h2>
 
@@ -93,12 +98,12 @@
   
 
 
+ <!-- pagination -->
 
-        <!-- pagination -->
 
-
-    </div>
+  </div>
 </div>
+
 
 
       </div>
@@ -174,7 +179,15 @@ activateDarkTheme();
 </footer>
 
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-152252318-1"></script>
 <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+
+  gtag('config', 'UA-152252318-1');
+</script><script>
       window.FontAwesomeConfig = {
         searchPseudoElements: true
       }
