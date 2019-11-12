@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.6">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-11-12T02:17:52+01:00</updated><id>/feed.xml</id><title type="html">Piyush Agrawal</title><subtitle>A lazy developer on a mission to make life easy.
+</subtitle><author><name>poush</name></author><entry><title type="html">Welcome to new design!</title><link href="/2019/11/12/welcome-to-new-design.html" rel="alternate" type="text/html" title="Welcome to new design!" /><published>2019-11-12T00:00:00+01:00</published><updated>2019-11-12T00:00:00+01:00</updated><id>/2019/11/12/welcome-to-new-design</id><content type="html" xml:base="/2019/11/12/welcome-to-new-design.html">&lt;p&gt;Bonjour,&lt;/p&gt;
+
+&lt;p&gt;I have jsut updated the design of my page. There can be some issues especially with responsiveness. I hope to update it soon. In meantime if you like to update your forks, feel free to rebase :)&lt;/p&gt;
+
+&lt;p&gt;I will be happy to see any issues at the github repo:  https://github.com/poush/poush.github.io&lt;/p&gt;
+
+&lt;p&gt;~ Piyush Agrawal&lt;/p&gt;</content><author><name>poush</name></author><category term="new" /><category term="design" /><summary type="html">Bonjour,</summary></entry><entry><title type="html">Reset password in Open Even API Server</title><link href="/reset-password-in-open-even-api-server/" rel="alternate" type="text/html" title="Reset password in Open Even API Server" /><published>2017-09-12T00:00:00+02:00</published><updated>2017-09-12T00:00:00+02:00</updated><id>/Reset-password-in-Open-Even-API-Server</id><content type="html" xml:base="/reset-password-in-open-even-api-server/">&lt;p&gt;&lt;img src=&quot;/public/AWUmd00BBnleDnbcf1Cfw_img_0.png&quot; alt=&quot;image alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Reset password in Open Even API Server&lt;/p&gt;
+
+&lt;p&gt;The addition of reset password API in the &lt;a href=&quot;https://github.com/fossasia/open-event-orga-server&quot;&gt;Open Event API Server&lt;/a&gt; enables the user to send a forgot password request to the server so that user can reset the password.&lt;/p&gt;
+
+&lt;p&gt;Reset Password API is a two step process. The first endpoint allows you to request a token to reset the password and this token is sent to the user via email. The second process is making a PATCH request with the token and new password to set the new password on user’s account.&lt;/p&gt;
+
+&lt;h3 id=&quot;creating-a-reset-token&quot;&gt;Creating a Reset token&lt;/h3&gt;
+
+&lt;p&gt;This endpoint is non JSON spec based API. A reset token is simply a hash of random bits which is stored in a specific column of user’s table.&lt;/p&gt;
+
+&lt;p&gt;hash_ = random.getrandbits(128)&lt;/p&gt;
+
+&lt;p&gt;self.reset_password = str(hash_)&lt;/p&gt;
+
+&lt;p&gt;Once the user completed the resetting of the password using the specific token, the old token is flushed and the new token is generated. These tokens are all one time use only.&lt;/p&gt;
+
+&lt;h3 id=&quot;requesting-a-token&quot;&gt;Requesting a token&lt;/h3&gt;
+
+&lt;p&gt;A token can be request on a specific endpoint  &lt;strong&gt;&lt;em&gt;POST /v1/auth/reset-password&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The token with the direct link will be sent to registered email.&lt;/p&gt;
+
+&lt;p&gt;link = make_frontend_url(‘/reset-password’, {‘token’: user.reset_password})&lt;/p&gt;
+
+&lt;p&gt;send_email_with_action(user, PASSWORD_RESET,&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;                                    app_name=get_settings()['app_name'], link=link)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;flow-with-frontend&quot;&gt;Flow with frontend&lt;/h3&gt;
+
+&lt;p&gt;The flow is broken into 2 steps with front end is serving to the backend. The user when click on forget password will be redirected to reset password page in front end which will call the API endpoint in the backend with an email to send the token.&lt;/p&gt;
+
+&lt;p&gt;The email received will contain the link for the front end URL which when clicked will redirect the user to the front end page of providing the new password. The new password entered with the token will be sent to API server by front end and reset password will complete.&lt;/p&gt;
+
+&lt;h3 id=&quot;updating-password&quot;&gt;Updating Password&lt;/h3&gt;
+
+&lt;p&gt;Once clicked on the link in the email, the user will be asked to provide the new password. This password will be sent to the endpoint &lt;strong&gt;&lt;em&gt;PATCH /v1/auth/reset-password&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The body will receive the token and the new password to update. The user will be identified using the token and password is updated for the respective user.&lt;/p&gt;
+
+&lt;p&gt;try:&lt;/p&gt;
+
+&lt;p&gt;user = User.query.filter_by(reset_password=token).one()&lt;/p&gt;
+
+&lt;p&gt;except NoResultFound:&lt;/p&gt;
+
+&lt;p&gt;return abort(&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   make_response(jsonify(error=&quot;User not found&quot;), 404)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;)&lt;/p&gt;
+
+&lt;p&gt;else:&lt;/p&gt;
+
+&lt;p&gt;user.password = password&lt;/p&gt;
+
+&lt;p&gt;save_to_db(user)&lt;/p&gt;
+
+&lt;h3 id=&quot;references&quot;&gt;References&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Understand Self-service reset password
+&lt;a href=&quot;https://en.wikipedia.org/wiki/Self-service_password_reset&quot;&gt;https://en.wikipedia.org/wiki/Self-service_password_reset&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Python - getrandbits()
+&lt;a href=&quot;https://docs.python.org/2/library/random.html&quot;&gt;https://docs.python.org/2/library/random.html&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>poush</name></author><category term="python" /><category term="flask" /><category term="gsoc" /><category term="open-event" /><category term="api-server" /><category term="reset-password" /><category term="forgot" /><category term="password" /><category term="reset" /><category term="token" /><summary type="html"></summary></entry><entry><title type="html">Generating Ticket PDFs in Open Event API Server</title><link href="/generating-ticket-pdfs-in-open-event-api-server/" rel="alternate" type="text/html" title="Generating Ticket PDFs in Open Event API Server" /><published>2017-09-12T00:00:00+02:00</published><updated>2017-09-12T00:00:00+02:00</updated><id>/Generating-Ticket-PDFs-in-Open-Event-API-Server</id><content type="html" xml:base="/generating-ticket-pdfs-in-open-event-api-server/">&lt;p&gt;&lt;img src=&quot;/public/rvHPVxaNuPA2Zs7PARrg_img_0.png&quot; alt=&quot;image alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Generating Ticket PDFs in Open Event API Server&lt;/p&gt;
+
+&lt;p&gt;In the ordering system of &lt;a href=&quot;https://github.com/fossasia/open-event-orga-server&quot;&gt;Open Event API Server&lt;/a&gt;, there is requirement to send email notifications to the attendees. These attendees receives the url of the pdf of generated ticket. On creating the order, first the pdfs are generated and stored in the preferred storage location and then these are sent to the users through the email.&lt;/p&gt;
+
+&lt;p&gt;Generating PDF is a simple process, using &lt;strong&gt;&lt;a href=&quot;https://github.com/xhtml2pdf/xhtml2pdf&quot;&gt;xhtml2pd**f&lt;/a&gt;&lt;/strong&gt; **we can generate PDFs from the html. The generated pdf is then passed to storage helpers to store it in the desired location and pdf-url is updated in the attendees record.&lt;/p&gt;
+
+&lt;h3 id=&quot;sample-pdf&quot;&gt;Sample PDF&lt;/h3&gt;
+
+&lt;p&gt;(just the sample ticket of sample event)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/public/rvHPVxaNuPA2Zs7PARrg_img_1.png&quot; alt=&quot;image alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;pdf-template&quot;&gt;PDF Template&lt;/h3&gt;
+
+&lt;p&gt;The templates are written in html which are then converted using the module &lt;a href=&quot;https://github.com/xhtml2pdf/xhtml2pdf&quot;&gt;xhtml2pdf&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;To store the templates a new directory was created at * &lt;strong&gt;*_app/templates _&lt;/strong&gt;where all html files are stored. Now, The template directory needs to be updated at flask initializing app so that template engine can pick the templates from there. So in app/&lt;strong&gt;init&lt;/strong&gt;.py we updated flask initialization with&lt;/p&gt;
+
+&lt;p&gt;template_dir = os.path.dirname(&lt;strong&gt;file&lt;/strong&gt;) + “/templates”&lt;/p&gt;
+
+&lt;p&gt;app = Flask(&lt;strong&gt;name&lt;/strong&gt;, static_folder=static_dir, template_folder=template_dir)&lt;/p&gt;
+
+&lt;p&gt;This allows the template engine to pick the templates files from this template directory.&lt;/p&gt;
+
+&lt;h3 id=&quot;generating-pdfs&quot;&gt;Generating PDFs&lt;/h3&gt;
+
+&lt;p&gt;Generating PDF is done by rendering the html template first. This html content is then parsed into the pdf&lt;/p&gt;
+
+&lt;p&gt;file = open(dest, “wb”)&lt;/p&gt;
+
+&lt;p&gt;pisa.CreatePDF(cStringIO.StringIO(pdf_data.encode(‘utf-8’)), file)&lt;/p&gt;
+
+&lt;p&gt;file.close()&lt;/p&gt;
+
+&lt;p&gt;The generated pdf is stored in the temporary location and then passed to storage helper to upload it.&lt;/p&gt;
+
+&lt;p&gt;uploaded_file = UploadedFile(dest, filename)&lt;/p&gt;
+
+&lt;p&gt;upload_path = UPLOAD_PATHS[‘pdf’][‘ticket_attendee’].format(identifier=get_file_name())&lt;/p&gt;
+
+&lt;p&gt;new_file = upload(uploaded_file, upload_path)&lt;/p&gt;
+
+&lt;p&gt;This generated pdf path is returned here&lt;/p&gt;
+
+&lt;h3 id=&quot;rendering-html-and-storing-pdf&quot;&gt;Rendering HTML and storing PDF&lt;/h3&gt;
+
+&lt;p&gt;for holder in order.ticket_holders:&lt;/p&gt;
+
+&lt;p&gt;if holder.id != current_user.id:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   pdf = create_save_pdf(render_template('/pdf/ticket_attendee.html', order=order, holder=holder))
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;else:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   pdf = create_save_pdf(render_template('/pdf/ticket_purchaser.html', order=order))
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;holder.pdf_url = pdf&lt;/p&gt;
+
+&lt;p&gt;save_to_db(holder)&lt;/p&gt;
+
+&lt;p&gt;The html is rendered using flask template engine and passed to &lt;strong&gt;create_save_pdf&lt;/strong&gt; and link is updated on the attendee record.&lt;/p&gt;
+
+&lt;h3 id=&quot;sending-pdf-on-email&quot;&gt;Sending PDF on email&lt;/h3&gt;
+
+&lt;p&gt;These pdfs are sent as a link to the email after creating the order. Thus a ticket is sent to each attendee and a summarized order details with attendees to the purchased.&lt;/p&gt;
+
+&lt;p&gt;send_email(&lt;/p&gt;
+
+&lt;p&gt;to=holder.email,&lt;/p&gt;
+
+&lt;p&gt;action=TICKET_PURCHASED_ATTENDEE,&lt;/p&gt;
+
+&lt;p&gt;subject=MAILS[TICKET_PURCHASED_ATTENDEE][‘subject’].format(&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   event_name=order.event.name,
+
+   invoice_id=order.invoice_number
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;),&lt;/p&gt;
+
+&lt;p&gt;html= MAILS[TICKET_PURCHASED_ATTENDEE][‘message’].format(&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   pdf_url=holder.pdf_url,
+
+   event_name=order.event.name
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;)&lt;/p&gt;
+
+&lt;p&gt;)&lt;/p&gt;
+
+&lt;h3 id=&quot;references&quot;&gt;References&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Readme - xhtml2pdf
+&lt;a href=&quot;https://github.com/xhtml2pdf/xhtml2pdf/blob/master/README.rst&quot;&gt;https://github.com/xhtml2pdf/xhtml2pdf/blob/master/README.rst&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Using xhtml2pdf and create pdfs
+&lt;a href=&quot;https://micropyramid.com/blog/generating-pdf-files-in-python-using-xhtml2pdf/&quot;&gt;https://micropyramid.com/blog/generating-pdf-files-in-python-using-xhtml2pdf/&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><author><name>poush</name></author><category term="python" /><category term="flask" /><category term="fossasia" /><category term="gsoc" /><category term="open-event" /><category term="api" /><category term="server" /><category term="html" /><category term="pdf" /><category term="xhtml2pdf" /><category term="send" /><category term="tickets" /><summary type="html"></summary></entry><entry><title type="html">A guide to use Permission Manager in Open Event API Server</title><link href="/a-guide-to-use-permission-manager-in-open-event-api-server/" rel="alternate" type="text/html" title="A guide to use Permission Manager in Open Event API Server" /><published>2017-09-12T00:00:00+02:00</published><updated>2017-09-12T00:00:00+02:00</updated><id>/A-guide-to-use-Permission-Manager-in-Open-Event-API-Server</id><content type="html" xml:base="/a-guide-to-use-permission-manager-in-open-event-api-server/">&lt;p&gt;&lt;img src=&quot;/public/ZnPzuLKvhpUpxOTCk05cg_img_0.png&quot; alt=&quot;image alt text&quot; /&gt;A guide to use Permission Manager in Open Event API Server&lt;/p&gt;
+
+&lt;p&gt;This article provides a simple guide to use permission manager in &lt;a href=&quot;http://github.com/fossasia/open-event-orga-server&quot;&gt;Open Event API Server&lt;/a&gt;. Permission manager is constantly being improved and new features are being added into it. To ensure that all co-developers get to know about it and make use of them, this blog posts describes every part of permission manager.&lt;/p&gt;
+
+&lt;h3 id=&quot;bootstrapping&quot;&gt;Bootstrapping&lt;/h3&gt;
+
+&lt;p&gt;Permission manager as a part of flask-rest-jsonapi works as a decorator for different resources of the API. There are two ways to provide the permission decorator to any view&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;First one is to provide it in the list of decorators&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;decorators = (api.has_permission(‘is_coorganizer’, fetch=”event_id”,&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;fetch_as=”event_id”, model=StripeAuthorization),)&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Second way is to explicitly provide it as a decorator to any view&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;@api.has_permission&lt;/strong&gt;(‘custom_arg’, custom_kwargs=’custom_kwargs’)
+  &lt;strong&gt;def&lt;/strong&gt; get(*args, &lt;strong&gt;kwargs):
+  **return&lt;/strong&gt; ‘Hello world !’&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In the process of booting up, we first need to understand the flow of Resources in API. All resources even before doing any schema check, call the decorators. So this way you will not get any request data in the permission methods. All you will receive is a &lt;strong&gt;dict&lt;/strong&gt; of the URL parameters but again it will not include the filter parameters.&lt;/p&gt;
+
+&lt;p&gt;Permission Manager receives five parameters as:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;def **&lt;/strong&gt;permission_manager**(view, view_args, view_kwargs, *args, **kwargs):&lt;/p&gt;
+
+&lt;p&gt;First three are provided into it implicitly by &lt;a href=&quot;https://flask-rest-jsonapi.readthedocs.io/&quot;&gt;flask-rest-jsonapi&lt;/a&gt; module&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;v&lt;/strong&gt;&lt;strong&gt;iew: **This is the resource’s view method which is called through the API. For example if I go to */events *then the **get&lt;/strong&gt; method of &lt;strong&gt;ResourceList&lt;/strong&gt; will be called.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;v&lt;/strong&gt;**iew_args: **These are args associated with that view&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;v&lt;/strong&gt;**iew_kwargs: **These are kwargs associated with that resource view. It includes all your URL parameters as well&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;a&lt;/strong&gt;&lt;strong&gt;rgs: **These are the custom args which are provided when calling the permission manager. Here at permission manager is it expected that the first index of **args&lt;/strong&gt; will be the name of permission to check for.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;k&lt;/strong&gt;**wargs: **This is the custom dict which is provided on calling the permission manager. The main pillar of the permission manager. Described below in usage.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;using-permission-manager&quot;&gt;Using Permission Manager&lt;/h3&gt;
+
+&lt;p&gt;Using permission manager is basically understanding the different options you can send through the &lt;strong&gt;kwargs&lt;/strong&gt; so here is the list of the things you can send to permission manager&lt;/p&gt;
+
+&lt;p&gt;These are all described in the order of priority in permission manager&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;m&lt;/strong&gt;&lt;strong&gt;ethod (string)&lt;/strong&gt;: You can provide a string containing the methods where permission needs to be checked as comma separated values of different methods in a string.
+For example: &lt;strong&gt;&lt;em&gt;method=&lt;/em&gt;&lt;/strong&gt;&lt;em&gt;“GET,POST”&lt;/em&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;l&lt;/strong&gt;**eave_if (lambda): **This receives a lambda function which should return boolean values. Based on returned value if is true then **it will skip the permission check. **The provided lambda function receives only parameter, *“view_kwargs”
+*Example use case can be the situation where you can leave the permission for any specific related endpoint to some resource and would like to do a manual check in the method itself.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;c&lt;/strong&gt;&lt;strong&gt;heck (lambda): **Opposite to leave_if. It receives a lambda function that will return boolean values. Based on returned value, If it is true then only it will go further and check the request for permissions else **will throw forbidden error.&lt;/strong&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;f&lt;/strong&gt;&lt;strong&gt;etch (string): **This is the string containing the name of the key which has to be fetched for **fetch_as **key (described below). Permission manager will first look for this value in **view_kwargs&lt;/strong&gt; dict object. If it is not there then it will make the query to get one(described below at &lt;strong&gt;model )&lt;/strong&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;f&lt;/strong&gt;&lt;strong&gt;etch_as (string): **This is the string containing the name of a key. The value of **fetch&lt;/strong&gt; key will be sent to the permission functions by this name.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;m&lt;/strong&gt;&lt;strong&gt;odel (string): **This is one most interesting concept here. To get the value of **fetch **key. Permission manager first looks into **view_kwargs **and if there no such value then you can still get one through the model. The model attribute here receives the class of the database model which will be used to get the value of **fetch&lt;/strong&gt; key.
+It makes the query to get the single resource from this model and look for the value of &lt;strong&gt;fetch&lt;/strong&gt; key and then pass it to the permission functions/methods.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The interesting part is that by default it uses &amp;lt;*id&amp;gt; *from view_kwargs to get the resource from the model but in any case if there is no specific ID with name &lt;id&gt; on the view_kwargs. You can use these two options as:&lt;/id&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;1. **f****etch_key_url (string): **This is the name of the key whose value will be fetched from view_kwargs and will be used to match through the records in database model to get the resource.
+
+2. **f****etch_key_model (string):** This is the name of the match column in the database model for the **fetch_key_url**, The value of it will be matched with column named as the value of **fetch_key_model.**
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;In case there is no record found in the model then permission manager will throw NotFound 404 Error.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;a-helper-for-permissions&quot;&gt;A helper for permissions&lt;/h3&gt;
+
+&lt;p&gt;The next big thing in permission manager is the addition of new helper function “has_access”&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;def **&lt;/strong&gt;has_access**(access_level, **kwargs):&lt;/p&gt;
+
+&lt;p&gt;**if **access_level **in **permissions:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   auth = permissions[access_level](**lambda ***a, **b: True, (), {}, (), **kwargs)
+
+   **if **type(auth) **is **bool **and **auth **is **True:
+
+       **return **True
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;**return **False&lt;/p&gt;
+
+&lt;p&gt;This method allows you to check the permission at the mid of any method of any view and of any resource. Just provide the name of permission in the first parameter and then the additional options needed by the permission function as the **kwargs **values.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;This does not throw any exception&lt;/strong&gt;. Just returns the boolean value so take care of throwing any exception by yourselves.&lt;/p&gt;
+
+&lt;h3 id=&quot;anything-to-improve-on&quot;&gt;Anything to improve on?&lt;/h3&gt;
+
+&lt;p&gt;I will not say this exactly as improvement but I would really like to make it more meaningful and interesting to add permission. May be something like this below:&lt;/p&gt;
+
+&lt;p&gt;permission = “Must be co_organizer OR track_organizer, fetch event_id as event_id, use model Event”&lt;/p&gt;
+
+&lt;p&gt;This clearly needs time to make it. But I see this as an interesting way to add permission. Just provide meaningful text and rest leave it to the permission manager.&lt;/p&gt;
+
+&lt;h3 id=&quot;resources&quot;&gt;Resources:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Permission manager - Flask-rest-jsonapi module
+&lt;a href=&quot;http://flask-rest-jsonapi.readthedocs.io/en/latest/permission.html&quot;&gt;http://flask-rest-jsonapi.readthedocs.io/en/latest/permission.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>poush</name></author><category term="gsoc" /><category term="python" /><category term="open" /><category term="event" /><category term="api" /><category term="server" /><category term="permission" /><category term="guide" /><category term="protecting" /><category term="endpoints" /><category term="flask" /><summary type="html">A guide to use Permission Manager in Open Event API Server</summary></entry><entry><title type="html">Decorators in Open Event API Server</title><link href="/2017/07/04/decorators-in-open-event-api-server.html" rel="alternate" type="text/html" title="Decorators in Open Event API Server" /><published>2017-07-04T00:00:00+02:00</published><updated>2017-07-04T00:00:00+02:00</updated><id>/2017/07/04/decorators-in-open-event-api-server</id><content type="html" xml:base="/2017/07/04/decorators-in-open-event-api-server.html">&lt;p&gt;One of the interesting features of Python is the decorator. Decorators dynamically alter the functionality of a function, method, or class without having to directly use subclasses or change the source code of the function being decorated.
+&lt;a href=&quot;http://github.com/fossasia/open-event-orga-server&quot;&gt;Open Event API Server&lt;/a&gt; makes use of decorator in various ways. The ability to wrap a function and run the decorator(s) before executing that function solves various purpose in Python. Earlier before decoupling of Orga Server into API Server and Frontend, decorators were being used for routes, permissions, validations and more.&lt;/p&gt;
+
+&lt;p&gt;Now, The API Server mainly uses decorators for:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Permissions&lt;/li&gt;
+  &lt;li&gt;Filtering on the basis of view_kwargs or injecting something into view_kwargs&lt;/li&gt;
+  &lt;li&gt;Validations&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We will take here about first two because validations are simple and we are using them out of the box from &lt;a href=&quot;http://marshmallow-jsonapi.readthedocs.io/en/latest/&quot;&gt;marshmall-api&lt;/a&gt;
+The second one is custom implementation made to ensure no separate generic helpers are called which can add additional database queries and call overheads in some scenarios.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Permissions Using Decorators&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Flask-rest-jsonapi provides an easy way to add decorators to &lt;code class=&quot;highlighter-rouge&quot;&gt;Resources&lt;/code&gt;. This is as easy as defining this into Resource class&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&lt;span class=&quot;n&quot;&gt;decorators&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;some_decorator&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;On working to event role decorators to use here, I need to follow only these 3 rules&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If the user is admin or super admin, he/she has full access to all event roles&lt;/li&gt;
+  &lt;li&gt;Then check the user’s role for the  given event&lt;/li&gt;
+  &lt;li&gt;Returns the requested resource’s view if authorized unless returns Forbidden Error response.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;One of the example is:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;is_organizer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view_args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view_kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_identity&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;is_staff&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view_args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view_kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;is_organizer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'event_id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ForbiddenError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'source'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Organizer access is required'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;respond&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view_args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view_kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;From above example, it is clear that it is following those three guidelines&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Filtering on the basis of view_kwargs or injecting something into view_kwargs&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is the main point to discuss, starting from a simple scenario where we have to show different events list for different users. Before decoupling API server, we had two different routes, one served the public events listing on the basis of event identifier and other to show events to the event admins and managers, listing only their own events to their panel.&lt;/p&gt;
+
+&lt;p&gt;In API server there are no two different routes for this. We manage this with single route and served both cases using decorator. This below is the magic decorator function for this purpose&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;accessible_role_based_events&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view_args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view_kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'POST'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;method&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'withRole'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;_jwt_required&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'JWT_DEFAULT_REALM'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;current_identity&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'GET'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;method&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;is_staff&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view_args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view_kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;view_kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user_id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view_args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view_kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;It works simply by looking for ‘withRole’ in requests and make a decision to include &lt;code class=&quot;highlighter-rouge&quot;&gt;user_id&lt;/code&gt; into kwargs as per these rules&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;If the request is POST then it has to be associated with some user so add the &lt;code class=&quot;highlighter-rouge&quot;&gt;user_id&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;If the request is GET and ‘withRole’ GET parameter is present in URL then yes add the &lt;code class=&quot;highlighter-rouge&quot;&gt;user_id&lt;/code&gt;. This way user is asking to list the events in which I have some admin or manager role&lt;/li&gt;
+  &lt;li&gt;If the request is GET and ‘withRole’ is defined but the logged in user is &lt;code class=&quot;highlighter-rouge&quot;&gt;admin&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;super_admin&lt;/code&gt; then there is no need add &lt;code class=&quot;highlighter-rouge&quot;&gt;user_id&lt;/code&gt; since staff can see all events in admin panel&lt;/li&gt;
+  &lt;li&gt;The last one is GET and no ‘withRole’ parameter is defined therefore ignores and continues the same request to list all events.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The next work is of &lt;code class=&quot;highlighter-rouge&quot;&gt;query&lt;/code&gt; method of &lt;code class=&quot;highlighter-rouge&quot;&gt;EventList&lt;/code&gt; Resource&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view_kwargs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user_id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'GET'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;query_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;query_&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Event&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;roles&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filter_by&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user_id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;view_kwargs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user_id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; \
+                    &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UsersEventsRoles&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;role&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;filter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Role&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ATTENDEE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This query joins the UsersEventsRoles model whenever &lt;code class=&quot;highlighter-rouge&quot;&gt;user_id&lt;/code&gt; is defined. Thus giving role-based events only.&lt;/p&gt;
+
+&lt;p&gt;The next interesting part is the Implementation of permission manager to ensure it doesn’t break at any point. We will see it in next post.&lt;/p&gt;</content><author><name>poush</name></author><summary type="html">One of the interesting features of Python is the decorator. Decorators dynamically alter the functionality of a function, method, or class without having to directly use subclasses or change the source code of the function being decorated. Open Event API Server makes use of decorator in various ways. The ability to wrap a function and run the decorator(s) before executing that function solves various purpose in Python. Earlier before decoupling of Orga Server into API Server and Frontend, decorators were being used for routes, permissions, validations and more.</summary></entry><entry><title type="html">Understanding {json:api} and it’s usage in Orga Server</title><link href="/fossasia/oauth/2017/06/27/understanding-jsonapi-and-its-implementation.html" rel="alternate" type="text/html" title="Understanding {json:api} and it's usage in Orga Server" /><published>2017-06-27T01:31:11+02:00</published><updated>2017-06-27T01:31:11+02:00</updated><id>/fossasia/oauth/2017/06/27/understanding-jsonapi-and-its-implementation</id><content type="html" xml:base="/fossasia/oauth/2017/06/27/understanding-jsonapi-and-its-implementation.html">&lt;h2 id=&quot;what-is-an-api&quot;&gt;&lt;em&gt;What is an API?&lt;/em&gt;&lt;/h2&gt;
+&lt;p&gt;API stands for “application programming interface”. Put briefly, an API consists of a set of rules describing how one application can interact with another and the mechanisms that allow such interaction to happen.&lt;/p&gt;
+
+&lt;h2 id=&quot;and-json-api&quot;&gt;&lt;em&gt;and JSON API?&lt;/em&gt;&lt;/h2&gt;
+&lt;p&gt;JSON API is a specification for writing RESTFul APIs ( CRUD interfaces ). This specification basically sets the standard for a client to request the resources and how a server is supposed to response minimizing the redundancy and number of requests.&lt;/p&gt;
+
+&lt;p&gt;If we look at the general implementation of RESTful APIs, we see that we are working on creating every endpoint manually, there are no relations. Sometimes different endpoints are being created for some slightly different business logic than other.&lt;/p&gt;
+
+&lt;h2 id=&quot;features&quot;&gt;&lt;em&gt;Features&lt;/em&gt;&lt;/h2&gt;
+
+&lt;p&gt;Apart from CRUD interface, JSON-API-Spec provides&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Fetching Resources&lt;/li&gt;
+  &lt;li&gt;Fetching Relationships&lt;/li&gt;
+  &lt;li&gt;Inclusion of Related Resources&lt;/li&gt;
+  &lt;li&gt;Sparse Fieldsets&lt;/li&gt;
+  &lt;li&gt;Sorting&lt;/li&gt;
+  &lt;li&gt;Pagination&lt;/li&gt;
+  &lt;li&gt;Filtering&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And what we need at Open Event Orga Server?&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Proper relationship definitions&lt;/li&gt;
+  &lt;li&gt;Sorting&lt;/li&gt;
+  &lt;li&gt;Filtering&lt;/li&gt;
+  &lt;li&gt;Pagination&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So JSON-API spec is a good choice for us at Orga Server since it solves our every basic need.&lt;/p&gt;
+
+&lt;h2 id=&quot;overview-of-changes&quot;&gt;Overview of Changes&lt;/h2&gt;
+
+&lt;p&gt;Firstly the main task was shifting to the library &lt;a href=&quot;https://github.com/miLibris/flask-rest-jsonapi&quot;&gt;flask-rest-jsonapi&lt;/a&gt; because this library stands to our four needs in API. 
+The changes included:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;ensuring JSON-API spec in our requests and responses (although the most of the work is done by the library)&lt;/li&gt;
+  &lt;li&gt;Reusing the current implementation of JWT authorization.&lt;/li&gt;
+  &lt;li&gt;To locate the new API to &lt;code class=&quot;highlighter-rouge&quot;&gt;/v1&lt;/code&gt;. Since Orga server is going to be API server with Open Event system following the API-centric approach, therefore, there is no need to have &lt;code class=&quot;highlighter-rouge&quot;&gt;/api/v1&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Now out timestamps in response and request will be timezone aware thus following ISO 8601 with timezone information &lt;code class=&quot;highlighter-rouge&quot;&gt;(Eg. 2017-05-22T09:12:44+00:00)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;em&gt;Following some basic rules like
+A JSON object MUST be at the root of every JSON API request and response containing data. This object defines a document’s “top level”.
+A document MUST contain at least one of the following top-level members:&lt;/em&gt;&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;data: the document’s “primary data”
+errors: an array of error objects
+meta: a meta object that contains non-standard meta-information. 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;media-type-to-use-applicationvndapijson&quot;&gt;Media type to use: &lt;code class=&quot;highlighter-rouge&quot;&gt;application/vnd.api+json&lt;/code&gt;&lt;/h4&gt;
+
+&lt;h2 id=&quot;an-example-of-new-api-server&quot;&gt;An example of new API Server&lt;/h2&gt;
+
+&lt;h4 id=&quot;resuest&quot;&gt;Resuest&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-JSON&quot;&gt;POST /v1/users HTTP/1.1
+Content-Type: application/json
+
+POST /v1/users HTTP/1.1
+Content-Type: application/vnd.api+json
+Host: localhost:5000
+Connection: close
+User-Agent: Paw/3.1.1 (Macintosh; OS X/10.12.3) GCDHTTPRequest
+Content-Length: 165
+
+{
+  &quot;data&quot;: {
+    &quot;attributes&quot;: {
+      &quot;name&quot;: &quot;Open Event User&quot;,
+      &quot;email&quot;: &quot;example@example.com&quot;,
+      &quot;password&quot;: &quot;12345678&quot;
+    },
+    &quot;type&quot;: &quot;user&quot;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;response&quot;&gt;Response&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-JSON&quot;&gt;HTTP/1.1 200 OK
+Content-Type: application/vnd.api+json
+
+{
+  &quot;data&quot;: {
+    &quot;attributes&quot;: {
+      &quot;is-admin&quot;: false,
+      &quot;last-name&quot;: null,
+      &quot;instagram-url&quot;: null,
+      &quot;is-super-admin&quot;: false,
+      &quot;thumbnail-image-url&quot;: null,
+      &quot;created-at&quot;: &quot;2017-06-27T09:08:59.369531+00:00&quot;,
+      &quot;last-accessed-at&quot;: null,
+      &quot;email&quot;: &quot;example@example.com&quot;,
+      &quot;icon-image-url&quot;: null,
+      &quot;contact&quot;: null,
+      &quot;deleted-at&quot;: null,
+      &quot;small-image-url&quot;: null,
+      &quot;facebook-url&quot;: null,
+      &quot;details&quot;: null,
+      &quot;is-verified&quot;: false,
+      &quot;first-name&quot;: null,
+      &quot;avatar-url&quot;: null,
+      &quot;twitter-url&quot;: null,
+      &quot;google-plus-url&quot;: null
+    },
+    &quot;type&quot;: &quot;user&quot;,
+    &quot;id&quot;: &quot;2&quot;,
+    &quot;links&quot;: {
+      &quot;self&quot;: &quot;/v1/users/2&quot;
+    }
+  },
+  &quot;jsonapi&quot;: {
+    &quot;version&quot;: &quot;1.0&quot;
+  },
+  &quot;links&quot;: {
+    &quot;self&quot;: &quot;/v1/users/2&quot;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Looking at the example we can directly see how easy it is for us to manage different needs like pagination, relationships using JSON API. 
+Next steps in the implementation is Docs for APIs, permissions implementations to secure the endpoints and setting up unit testing of the endpoints which will be discussed in next posts.&lt;/p&gt;
+
+&lt;p&gt;Further read on JSON API Spec -&amp;gt; &lt;a href=&quot;http://jsonapi.org/format/&quot;&gt;http://jsonapi.org/format/&lt;/a&gt;&lt;/p&gt;</content><author><name>poush</name></author><summary type="html">What is an API? API stands for “application programming interface”. Put briefly, an API consists of a set of rules describing how one application can interact with another and the mechanisms that allow such interaction to happen.</summary></entry><entry><title type="html">Using HTTMock to mock 3rd Party APIs</title><link href="/2017/05/29/using-httmock-to-mock-3rd-party-apis.html" rel="alternate" type="text/html" title="Using HTTMock to mock 3rd Party APIs" /><published>2017-05-29T00:00:00+02:00</published><updated>2017-05-29T00:00:00+02:00</updated><id>/2017/05/29/using-httmock-to-mock-3rd-party-apis</id><content type="html" xml:base="/2017/05/29/using-httmock-to-mock-3rd-party-apis.html">&lt;p&gt;In the process of implementing the connected social media in API server. There was a situation where we need to mock the 3rd party API services like Google OAuth, Facebook Graph API.&lt;/p&gt;
+
+&lt;p&gt;The idea was simple, as suggested by  &lt;a href=&quot;https://github.com/hongquan&quot;&gt;@hongquan&lt;/a&gt;,  when &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; make a &lt;strong&gt;HTTP&lt;/strong&gt; request to &lt;em&gt;https://api.google.com/profile&lt;/em&gt;, for example, &lt;a href=&quot;https://github.com/patrys/httmock&quot;&gt;httmock&lt;/a&gt; will&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;stand in the middle,&lt;/li&gt;
+  &lt;li&gt;stop request from going to the Internet,&lt;/li&gt;
+  &lt;li&gt;and returns a JSON response as if the response is from Google.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The content of this response is written by us in the test case. We have to read Google documentation to write a correct fake response.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Library used&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;For this purpose, I used the &lt;a href=&quot;https://github.com/patrys/httmock&quot;&gt;httmock&lt;/a&gt; library for Python.&lt;/p&gt;
+
+&lt;h3 id=&quot;steps-to-follow&quot;&gt;Steps to follow&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Look for response object on two requests (OAuth and profile details).&lt;/li&gt;
+  &lt;li&gt;Create the dummy response using the sample response object.&lt;/li&gt;
+  &lt;li&gt;Creating endpoints using the httpmock library.&lt;/li&gt;
+  &lt;li&gt;During test run, calling the specific method &lt;code class=&quot;highlighter-rouge&quot;&gt;with HTTMock&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Sample object of OAuth Response from Google is:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    {
+        &quot;access_token&quot;:&quot;2YotnFZFEjr1zCsicMWpAA&quot;,
+        &quot;token_type&quot;:&quot;Bearer&quot;,
+        &quot;expires_in&quot;:3600,
+        &quot;refresh_token&quot;:&quot;tGzv3JOkF0XG5Qx2TlKWIA&quot;,
+        &quot;example_parameter&quot;:&quot;example_value&quot;
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;and from the sample object of Google Profile API we needed the link of profile for our API-server:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-JSON&quot;&gt;{'link':'http://google.com/some_id'}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Creating the dummy response&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Creating dummy response was easy. All I had to do is provide proper header and content in response and use &lt;code class=&quot;highlighter-rouge&quot;&gt;urlmatch&lt;/code&gt; decorator&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;# response for getting userinfo from google
+&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;urlmatch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;netloc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'https://www.googleapis.com/userinfo/v2/me'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;google_profile_mock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'content-type'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'application/json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'link'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'http://google.com/some_id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;urlmatch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;netloc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'(.*\.)?google\.com$'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;google_auth_mock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'content-type'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'application/json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;access_token&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;2YotnFZFEjr1zCsicMWpAA&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;token_type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Bearer&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;expires_in&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3600&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;refresh_token&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;tGzv3JOkF0XG5Qx2TlKWIA&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;example_parameter&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;example_value&quot;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;So now we have the end points to mock the response. All we need to do is to use HTTMock inside the test case.&lt;/p&gt;
+
+&lt;p&gt;To use this setup all we need to do is:&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HTTMock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;google_auth_mock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;google_profile_mock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+                 &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Open Event'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'/gCallback/?state=dummy_state&amp;amp;code=dummy_code'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                                                           &lt;span class=&quot;n&quot;&gt;follow_redirects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+             &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assertEqual&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'/gCallback/?state=dummy_state&amp;amp;code=dummy_code'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;status_code&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;302&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+             &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assertEqual&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'/gCallback/?state=dummy_state&amp;amp;code=dummy_code'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;status_code&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;302&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;And we were able to mock the Google APIs in our test case. Complete implementation in Fossasia API-Server can be seen &lt;a href=&quot;https://github.com/fossasia/open-event-orga-server/pull/3629/files&quot;&gt;Here&lt;/a&gt;&lt;/p&gt;</content><author><name>poush</name></author><category term="fossasia" /><category term="HTTMock" /><category term="tech" /><category term="API-server" /><category term="open-event" /><summary type="html">In the process of implementing the connected social media in API server. There was a situation where we need to mock the 3rd party API services like Google OAuth, Facebook Graph API.</summary></entry><entry><title type="html">Connecting Social Apps with Orga API Server</title><link href="/fossasia/oauth/2017/05/23/connecting-social-apps-with-orga-api-server.html" rel="alternate" type="text/html" title="Connecting Social Apps with Orga API Server" /><published>2017-05-23T04:11:24+02:00</published><updated>2017-05-23T04:11:24+02:00</updated><id>/fossasia/oauth/2017/05/23/connecting-social-apps-with-orga-api-server</id><content type="html" xml:base="/fossasia/oauth/2017/05/23/connecting-social-apps-with-orga-api-server.html">&lt;h2 id=&quot;addition-of-a-feature-to-orga-api-server&quot;&gt;Addition of a feature to Orga API Server&lt;/h2&gt;
+&lt;h3 id=&quot;ability-to-connect-your-social-apps-with-orga-server&quot;&gt;&lt;em&gt;Ability to connect your social apps with orga server&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;What’s going to add?&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A feature which will allow us to provide Organizer options to connect with their social media audience directly with API server and Users to share their experience for different events on their social media platforms.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Platforms added&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;F&lt;/strong&gt;aceBook&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;T&lt;/strong&gt;witter&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;I&lt;/strong&gt;nstagram&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;G&lt;/strong&gt;oogle+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;the-auth-tool---oauth-20&quot;&gt;The Auth Tool - OAuth 2.0&lt;/h3&gt;
+&lt;p&gt;Without going on introductory introduction to Oauth2.0 Let’s focus on its implementation in Orga API Server&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;OAuth Roles&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;OAuth defines four roles:&lt;/em&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Resource Owner&lt;/li&gt;
+  &lt;li&gt;Client&lt;/li&gt;
+  &lt;li&gt;Resource Server&lt;/li&gt;
+  &lt;li&gt;Authorization Server&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let’s look at the responsibility of these roles when you connect your social apps with API server&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Resource Owner: User/Organizer ( You )&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;You as User or Organizer connection your accounts with API server are the resource owners who authorize API server to access your account. During authorization, you provide us access to read your account details like Name, Email, Profile photo, etc.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Resource / Authorization Server: Social Apps&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The resource server here is your social platforms/apps where you have your account registered. These Apps provide us limited access to fetch details of your account once you authorize our application to do so.
+They make sure the token we provide match with the authorization provided before through your account.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Client: Orga API Server&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Orga API Server acts as the client to access your account details. Before it may do so, it must be authorized by the user, and the authorization must be validated by the API.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-process-to-add&quot;&gt;The process to add&lt;/h3&gt;
+&lt;p&gt;A simple work plan to follow:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Understanding how OAuth is implemented.&lt;/li&gt;
+  &lt;li&gt;Test OAuth implementation on all 4 social medias.&lt;/li&gt;
+  &lt;li&gt;After Necessary correction. Make sure we have all views(routes) to connect these 4 social medias.&lt;/li&gt;
+  &lt;li&gt;Implementing the same feature on the template file.&lt;/li&gt;
+  &lt;li&gt;Make sure these connect buttons are shown only when Admin has registered its client credentials in Settings.&lt;/li&gt;
+  &lt;li&gt;Creating a view to unlink your social media account.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;Understanding how OAuth is implemented.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Current Implementation of OAuth is very simple and interesting on API server. We have OAuth helper classes which provide all necessary endpoints and different methods to get the job done.
+&lt;img src=&quot;/Screen%20Shot%202017-05-23%20at%205.17.52%20PM.png&quot; alt=&quot;Oauth&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Test OAuth implementation on all 4 social medias.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Now we can work on testing on the callbacks of all 4 social apps. We have callback defined in &lt;code class=&quot;highlighter-rouge&quot;&gt;views/util_routes.py&lt;/code&gt;
+For this, I picked up the auth OAuth URLs and called them directly on my browsers and testing their callback. Now on callback, those methods required some change to save user data on database thus connecting their accounts with API server. This lead to changes in &lt;code class=&quot;highlighter-rouge&quot;&gt;update_user_details&lt;/code&gt; and on callback methods.&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;def update_user_details(first_name=None,
+                        last_name=None,
+                        facebook_link=None,
+                        twitter_link=None,
+                        file_url=None,
+                        instagram=None,
+                        google=None):
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;Make sure we have all views(routes) to connect these 4 social medias&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This has to be done on &lt;code class=&quot;highlighter-rouge&quot;&gt;views/users/profile.py&lt;/code&gt;
+Addition of one method&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@profile.route('/google_connect/', methods=('GET', 'POST'))
+def google_connect():
+        ....
+        ....
+    return redirect(gp_auth_url)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;and testing, correction on other 3 methods&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Implementing the same feature on template file.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Updating &lt;code class=&quot;highlighter-rouge&quot;&gt;gentelella/users/settings/pages/applications.html&lt;/code&gt;  to add changes required to add this feature. This included ability to show URLs of connected accounts and functioning connect and disconnect button&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Make sure these connect buttons are shown only when Admin has registered its client credentials in Settings.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;     fb = get_settings()['fb_client_id'] != None and get_settings()['fb_client_secret'] != None
+        ....
+        ....
+        ...
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The addition of such snippet provides data to the template to decide whether to show those fields or not. It will not make any sense if there is no application created to connect those accounts by Admin.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Creating a view to unlink your social media account.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;utils_routes.route('/unlink-social/&amp;lt;social&amp;gt;')
+def unlink_social(social):
+    if login.current_user is not None and login.current_user.is_authenticated:
+        ...
+        ...
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;A method is created to unlink the connected accounts so that users can anytime disconnect their accounts from API server.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Where to connect?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Settings &amp;gt; Applications
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;em&gt;How it Works&lt;/em&gt;
+&lt;img src=&quot;https://www.dropbox.com/s/ra0fi45mo7i6jby/ScreenFlow.gif?dl=1&quot; alt=&quot;Download&quot; /&gt;&lt;/p&gt;</content><author><name>poush</name></author><category term="fossasia" /><category term="API-server" /><category term="OAuth" /><category term="social-apps" /><summary type="html">Addition of a feature to Orga API Server Ability to connect your social apps with orga server</summary></entry><entry><title type="html">Using Cloud storage for event exports</title><link href="/fossasia/2017/05/09/using-cloud-storage-for-event-exports.html" rel="alternate" type="text/html" title="Using Cloud storage for event exports" /><published>2017-05-09T09:56:44+02:00</published><updated>2017-05-09T09:56:44+02:00</updated><id>/fossasia/2017/05/09/using-cloud-storage-for-event-exports</id><content type="html" xml:base="/fossasia/2017/05/09/using-cloud-storage-for-event-exports.html">&lt;p&gt;Open-event orga server provides ability to organizer to create complete export of the event they created. Currently when an organizer triggers the export in orga server, A celery job is set to complete the export task resulting asynchronous completion of the job. Organizer gets the download button enabled once export is ready.&lt;/p&gt;
+
+&lt;p&gt;Till now the main issue was related with storage of those export zip files. All exported zip files were stored directly in local storage and that even not by using storage module created under orga server.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/Screen%20Shot%202017-05-10%20at%207.11.36%20PM.png&quot; alt=&quot;local storage path&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;On a mission to solve this, I made three simple steps that I followed to solve this issue.&lt;/p&gt;
+
+&lt;p&gt;These three steps were:&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;ol&gt;
+    &lt;li&gt;Wait for &lt;strong&gt;shutil.make_archive&lt;/strong&gt; to complete archive and store it in local storage.&lt;/li&gt;
+    &lt;li&gt;Copy the created archive to storage ( specified by user )&lt;/li&gt;
+    &lt;li&gt;Delete local archive created.&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The easiest part here was to make these files upload to different storage ( s3, gs, local) as we already have &lt;code class=&quot;highlighter-rouge&quot;&gt;storage&lt;/code&gt; helper&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;def upload(uploaded_file, key, **kwargs):
+    &quot;&quot;&quot;
+    Upload handler
+    &quot;&quot;&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The most important logic of this issue resides to this code snippet.&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    dir_path = dir_path + &quot;.zip&quot;
+
+     storage_path = UPLOAD_PATHS['exports']['zip'].format(
+         event_id = event_id
+     )
+     uploaded_file = UploadedFile(dir_path, dir_path.rsplit('/', 1)[1])
+     storage_url = upload(uploaded_file, storage_path)
+
+    if get_settings()['storage_place'] != &quot;s3&quot; or get_settings()['storage_place'] != 'gs':
+        storage_url = app.config['BASE_DIR'] + storage_url.replace(&quot;/serve_&quot;,&quot;/&quot;)
+    return storage_url
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;From above snippet it is clear that we are extending the process of creating zip. Once the zip is created we will make storage path for cloud storage and upload it. Only one thing will take time to understand here is the last second and third line of above snippet.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;if get_settings()['storage_place'] != &quot;s3&quot; or get_settings()['storage_place'] != 'gs':
+        storage_url = app.config['BASE_DIR'] + storage_url.replace(&quot;/serve_&quot;,&quot;/&quot;)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Initial the plan was simple to serve the files through &lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;serve_static&lt;/code&gt;&lt;/strong&gt; but then the test cases were expecting a file at this location thus I had to remove “serve_” part for local storage and then it works fine on those three steps.&lt;/p&gt;
+
+&lt;p&gt;Next thing on this storage process need to be discussed is feature to delete old exports. I believe one reason to keep them would be a old backup of your event will be always there with us at our cloud storage.&lt;/p&gt;</content><author><name>poush</name></author><category term="fossasia" /><category term="tech" /><category term="open-event" /><category term="tech" /><summary type="html">Open-event orga server provides ability to organizer to create complete export of the event they created. Currently when an organizer triggers the export in orga server, A celery job is set to complete the export task resulting asynchronous completion of the job. Organizer gets the download button enabled once export is ready.</summary></entry><entry><title type="html">Different Types of SQL Commands</title><link href="/general/windows/2017/04/25/different-types-of-sql.html" rel="alternate" type="text/html" title="Different Types of SQL Commands" /><published>2017-04-25T09:56:44+02:00</published><updated>2017-04-25T09:56:44+02:00</updated><id>/general/windows/2017/04/25/different-types-of-sql</id><content type="html" xml:base="/general/windows/2017/04/25/different-types-of-sql.html">&lt;p&gt;Structured Query Language (aka “SQL”) is created for managing RDBMS ( Relational Database Management Systems )&lt;/p&gt;
+
+&lt;p&gt;From Wikipedia,&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Originally based upon relational algebra and tuple relational calculus, SQL consists of a data definition language, data manipulation language, and data control language. The scope of SQL includes data insert, query, update and delete, schema creation and modification, and data access control. Although SQL is often described as, and to a great extent is, a declarative language (4GL), it also includes procedural elements.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Looks Good!
+In simple terms, we are using SQL to operate our RDBMS and this language has seriously easy syntax.&lt;/p&gt;
+
+&lt;p&gt;Now there are different types of SQL commands. ( and yeah! We run commands to operate our RDBMS in SQL)&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;DDL  -  Data Definition Language&lt;/li&gt;
+  &lt;li&gt;DML - Data Manipulation Language&lt;/li&gt;
+  &lt;li&gt;DCL  - Data Control Language&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Till my viva in my college, I wasn’t aware of any third type :D&lt;/p&gt;
+
+&lt;h2 id=&quot;ddl&quot;&gt;DDL&lt;/h2&gt;
+&lt;p&gt;DDL provides the standard structure of commands that defines the structure of database objects like tables, indexes. Some of the operations/commands are&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;CREATE TABLE&lt;/li&gt;
+  &lt;li&gt;ALTER TABLE&lt;/li&gt;
+  &lt;li&gt;DROP TABLE&lt;/li&gt;
+  &lt;li&gt;CREATE INDEX&lt;/li&gt;
+  &lt;li&gt;ALTER INDEX&lt;/li&gt;
+  &lt;li&gt;DROP INDEX&lt;/li&gt;
+  &lt;li&gt;CREATE VIEW&lt;/li&gt;
+  &lt;li&gt;DROP VIEW&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;dml&quot;&gt;DML&lt;/h2&gt;
+&lt;p&gt;These commands are used for managing data within schema objects. Some examples:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;INSERT - insert data into a table&lt;/li&gt;
+  &lt;li&gt;UPDATE - updates existing data within a table&lt;/li&gt;
+  &lt;li&gt;DELETE - deletes all records from a table, the space for the records remain&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;dcl&quot;&gt;DCL&lt;/h2&gt;
+&lt;p&gt;These commands manage the access to your database. Generally applied to database users so that you can control the access of other users to your database.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;ALTER PASSWORD&lt;/li&gt;
+  &lt;li&gt;GRANT&lt;/li&gt;
+  &lt;li&gt;REVOKE&lt;/li&gt;
+  &lt;li&gt;CREATE SYNONYM&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;That’s all summarized for three different types of SQL commands.&lt;/p&gt;
+
+&lt;h2 id=&quot;wait&quot;&gt;Wait!&lt;/h2&gt;
+&lt;p&gt;You see SELECT command anywhere? If you are familiar with SQL then you might know about most used command, The “SELECT” command and if you see the lists above you will not find it in any category.  Well there is another category called&lt;/p&gt;
+&lt;h3 id=&quot;dql---data-query-language&quot;&gt;DQL - Data Query language&lt;/h3&gt;
+
+&lt;p&gt;Comprises only one command &lt;strong&gt;&lt;em&gt;SELECT&lt;/em&gt;&lt;/strong&gt; but is most used and most concentrated for SQL users. With different options and clauses, it is used to make queries (inquiries) to the database.&lt;/p&gt;
+
+&lt;p&gt;Take the simple example, when you open a website page then the SELECT queries are made to get user data, website configurations, data to shown on web page. Complex and large data require joins and multiple queries.
+And yes number of queries can be reduced by different techniques but we will discuss it later :)&lt;/p&gt;</content><author><name>poush</name></author><category term="sql" /><category term="DDL" /><category term="DML" /><category term="DCL" /><summary type="html">Structured Query Language (aka “SQL”) is created for managing RDBMS ( Relational Database Management Systems )</summary></entry></feed>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Generating Ticket PDFs in Open Event API Server | Piyush Agrawal</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Generating Ticket PDFs in Open Event API Server" />
+<meta name="author" content="poush" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A lazy developer on a mission to make life easy." />
+<meta property="og:description" content="A lazy developer on a mission to make life easy." />
+<meta property="og:site_name" content="Piyush Agrawal" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-09-12T00:00:00+02:00" />
+<script type="application/ld+json">
+{"description":"A lazy developer on a mission to make life easy.","@type":"BlogPosting","headline":"Generating Ticket PDFs in Open Event API Server","dateModified":"2017-09-12T00:00:00+02:00","datePublished":"2017-09-12T00:00:00+02:00","url":"/generating-ticket-pdfs-in-open-event-api-server/","mainEntityOfPage":{"@type":"WebPage","@id":"/generating-ticket-pdfs-in-open-event-api-server/"},"author":{"@type":"Person","name":"poush"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" type="image/png" href="/assets/favicon.png" /><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Piyush Agrawal" /><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
+  <link rel="stylesheet" href="/assets/dracula.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body><div class="site-header">
+  <div class="wrapper wrapper-header">
+    <a class="site-title" rel="author" href="/"><span class="muted">~/Users/</span>Piyush Agrawal<b class="command_prompt"></b><b class="blinking_cursor">_</b></a>
+
+    <div class="author-box">
+
+<!-- <img src="https://gravatar.com/avatar/e6e6f4e575ebd10763d358825bd441b5?s=256" class="author-avatar" /> -->
+
+<span style="color: #50BD6A; float:right">A lazy developer on a mission to make life easy.
+</span>
+</div>
+
+  </div>
+</div>
+
+
+<!-- <span class="social_links">
+    <a class="color-cyan-hover" href="https://twitter.com/mepoush"><i class="fab fa-twitter-square"></i></a><a class="color-purple-hover" href="https://github.com/poush"><i class="fab fa-github-square"></i></a>
+</span> -->
+
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+
+        <div class="post">
+  <h1 class="post-title">Generating Ticket PDFs in Open Event API Server</h1>
+  
+  <div class="post-tags">
+      
+      <a class="tag" href="/tag/python/">python</a>
+      
+      <a class="tag" href="/tag/flask/">flask</a>
+      
+      <a class="tag" href="/tag/fossasia/">fossasia</a>
+      
+      <a class="tag" href="/tag/gsoc/">gsoc</a>
+      
+      <a class="tag" href="/tag/open-event/">open-event</a>
+      
+      <a class="tag" href="/tag/api/">api</a>
+      
+      <a class="tag" href="/tag/server/">server</a>
+      
+      <a class="tag" href="/tag/html/">html</a>
+      
+      <a class="tag" href="/tag/pdf/">pdf</a>
+      
+      <a class="tag" href="/tag/xhtml2pdf/">xhtml2pdf</a>
+      
+      <a class="tag" href="/tag/send/">send</a>
+      
+      <a class="tag" href="/tag/tickets/">tickets</a>
+      
+  </div>
+  
+  <div class="post-date">Published on 12 Sep 2017</div>
+  
+  <p><img src="/public/rvHPVxaNuPA2Zs7PARrg_img_0.png" alt="image alt text" /></p>
+
+<p>Generating Ticket PDFs in Open Event API Server</p>
+
+<p>In the ordering system of <a href="https://github.com/fossasia/open-event-orga-server">Open Event API Server</a>, there is requirement to send email notifications to the attendees. These attendees receives the url of the pdf of generated ticket. On creating the order, first the pdfs are generated and stored in the preferred storage location and then these are sent to the users through the email.</p>
+
+<p>Generating PDF is a simple process, using <strong><a href="https://github.com/xhtml2pdf/xhtml2pdf">xhtml2pd**f</a></strong> **we can generate PDFs from the html. The generated pdf is then passed to storage helpers to store it in the desired location and pdf-url is updated in the attendees record.</p>
+
+<h3 id="sample-pdf">Sample PDF</h3>
+
+<p>(just the sample ticket of sample event)</p>
+
+<p><img src="/public/rvHPVxaNuPA2Zs7PARrg_img_1.png" alt="image alt text" /></p>
+
+<h3 id="pdf-template">PDF Template</h3>
+
+<p>The templates are written in html which are then converted using the module <a href="https://github.com/xhtml2pdf/xhtml2pdf">xhtml2pdf</a>.</p>
+
+<p>To store the templates a new directory was created at * <strong>*_app/templates _</strong>where all html files are stored. Now, The template directory needs to be updated at flask initializing app so that template engine can pick the templates from there. So in app/<strong>init</strong>.py we updated flask initialization with</p>
+
+<p>template_dir = os.path.dirname(<strong>file</strong>) + “/templates”</p>
+
+<p>app = Flask(<strong>name</strong>, static_folder=static_dir, template_folder=template_dir)</p>
+
+<p>This allows the template engine to pick the templates files from this template directory.</p>
+
+<h3 id="generating-pdfs">Generating PDFs</h3>
+
+<p>Generating PDF is done by rendering the html template first. This html content is then parsed into the pdf</p>
+
+<p>file = open(dest, “wb”)</p>
+
+<p>pisa.CreatePDF(cStringIO.StringIO(pdf_data.encode(‘utf-8’)), file)</p>
+
+<p>file.close()</p>
+
+<p>The generated pdf is stored in the temporary location and then passed to storage helper to upload it.</p>
+
+<p>uploaded_file = UploadedFile(dest, filename)</p>
+
+<p>upload_path = UPLOAD_PATHS[‘pdf’][‘ticket_attendee’].format(identifier=get_file_name())</p>
+
+<p>new_file = upload(uploaded_file, upload_path)</p>
+
+<p>This generated pdf path is returned here</p>
+
+<h3 id="rendering-html-and-storing-pdf">Rendering HTML and storing PDF</h3>
+
+<p>for holder in order.ticket_holders:</p>
+
+<p>if holder.id != current_user.id:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   pdf = create_save_pdf(render_template('/pdf/ticket_attendee.html', order=order, holder=holder))
+</code></pre></div></div>
+
+<p>else:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   pdf = create_save_pdf(render_template('/pdf/ticket_purchaser.html', order=order))
+</code></pre></div></div>
+
+<p>holder.pdf_url = pdf</p>
+
+<p>save_to_db(holder)</p>
+
+<p>The html is rendered using flask template engine and passed to <strong>create_save_pdf</strong> and link is updated on the attendee record.</p>
+
+<h3 id="sending-pdf-on-email">Sending PDF on email</h3>
+
+<p>These pdfs are sent as a link to the email after creating the order. Thus a ticket is sent to each attendee and a summarized order details with attendees to the purchased.</p>
+
+<p>send_email(</p>
+
+<p>to=holder.email,</p>
+
+<p>action=TICKET_PURCHASED_ATTENDEE,</p>
+
+<p>subject=MAILS[TICKET_PURCHASED_ATTENDEE][‘subject’].format(</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   event_name=order.event.name,
+
+   invoice_id=order.invoice_number
+</code></pre></div></div>
+
+<p>),</p>
+
+<p>html= MAILS[TICKET_PURCHASED_ATTENDEE][‘message’].format(</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   pdf_url=holder.pdf_url,
+
+   event_name=order.event.name
+</code></pre></div></div>
+
+<p>)</p>
+
+<p>)</p>
+
+<h3 id="references">References</h3>
+
+<ol>
+  <li>
+    <p>Readme - xhtml2pdf
+<a href="https://github.com/xhtml2pdf/xhtml2pdf/blob/master/README.rst">https://github.com/xhtml2pdf/xhtml2pdf/blob/master/README.rst</a></p>
+  </li>
+  <li>
+    <p>Using xhtml2pdf and create pdfs
+<a href="https://micropyramid.com/blog/generating-pdf-files-in-python-using-xhtml2pdf/">https://micropyramid.com/blog/generating-pdf-files-in-python-using-xhtml2pdf/</a></p>
+  </li>
+</ol>
+
+
+</div>
+
+
+
+
+
+<div class="related">
+  <h2>related posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/2019/11/12/welcome-to-new-design.html">
+            Welcome to new design!
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/reset-password-in-open-even-api-server/">
+            Reset password in Open Even API Server
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/a-guide-to-use-permission-manager-in-open-event-api-server/">
+            A guide to use Permission Manager in Open Event API Server
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+
+
+
+  
+  <div class="tag-cloud"><a href="/tag/api-server/" class="set-2">API-server</a> <a href="/tag/dcl/" class="set-1">DCL</a> <a href="/tag/ddl/" class="set-1">DDL</a> <a href="/tag/dml/" class="set-1">DML</a> <a href="/tag/httmock/" class="set-1">HTTMock</a> <a href="/tag/oauth/" class="set-1">OAuth</a> <a href="/tag/api/" class="set-2">api</a> <a href="/tag/api-server/" class="set-1">api-server</a> <a href="/tag/design/" class="set-1">design</a> <a href="/tag/endpoints/" class="set-1">endpoints</a> <a href="/tag/event/" class="set-1">event</a> <a href="/tag/express/" class="set-1">express</a> <a href="/tag/flask/" class="set-4">flask</a> <a href="/tag/forgot/" class="set-1">forgot</a> <a href="/tag/fossasia/" class="set-5">fossasia</a> <a href="/tag/gsoc/" class="set-4">gsoc</a> <a href="/tag/guide/" class="set-1">guide</a> <a href="/tag/html/" class="set-1">html</a> <a href="/tag/new/" class="set-1">new</a> <a href="/tag/open/" class="set-1">open</a> <a href="/tag/open-event/" class="set-5">open-event</a> <a href="/tag/oracle-database/" class="set-1">oracle-database</a> <a href="/tag/password/" class="set-1">password</a> <a href="/tag/pdf/" class="set-1">pdf</a> <a href="/tag/permission/" class="set-1">permission</a> <a href="/tag/protecting/" class="set-1">protecting</a> <a href="/tag/python/" class="set-4">python</a> <a href="/tag/reset/" class="set-1">reset</a> <a href="/tag/reset-password/" class="set-1">reset-password</a> <a href="/tag/send/" class="set-1">send</a> <a href="/tag/server/" class="set-2">server</a> <a href="/tag/social-apps/" class="set-1">social-apps</a> <a href="/tag/sql/" class="set-1">sql</a> <a href="/tag/tech/" class="set-4">tech</a> <a href="/tag/tickets/" class="set-1">tickets</a> <a href="/tag/token/" class="set-1">token</a> <a href="/tag/windows/" class="set-1">windows</a> <a href="/tag/xhtml2pdf/" class="set-1">xhtml2pdf</a></div>
+  
+
+
+
+      </div>
+    </main><footer class="site-footer">
+  <div class="wrapper">
+    <div class="credits"><!-- <div class="toggleWrapper">
+    <input type="checkbox" class="dn" id="theme-toggle" onclick="modeSwitcher()" checked />
+    <label for="theme-toggle" class="toggle">
+    <span class="toggle__handler">
+      <span class="crater crater--1"></span>
+      <span class="crater crater--2"></span>
+      <span class="crater crater--3"></span>
+    </span>
+        <span class="star star--1"></span>
+        <span class="star star--2"></span>
+        <span class="star star--3"></span>
+        <span class="star star--4"></span>
+        <span class="star star--5"></span>
+        <span class="star star--6"></span>
+    </label>
+</div> -->
+<script type="text/javascript">
+const theme = localStorage.getItem('theme');
+if (theme === 'undefined') {
+   theme = "dark";
+}
+if (theme === "dark") {
+	document.documentElement.setAttribute('data-theme', 'dark');
+} else {
+    document.documentElement.setAttribute('data-theme', 'light');
+}
+const userPrefers = getComputedStyle(document.documentElement).getPropertyValue('content');
+
+function activateDarkTheme() {
+    // document.getElementById('theme-toggle').checked = true;
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.classList.add('theme--dark');
+    document.documentElement.classList.remove('theme--light');
+	// document.getElementById("theme-toggle").className = 'light';
+	window.localStorage.setItem('theme', 'dark');
+}
+
+function activateLightTheme() {
+    // document.getElementById('theme-toggle').checked = false;
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.classList.add('theme--light');
+    document.documentElement.classList.remove('theme--dark');
+	document.getElementById("theme-toggle").className = 'dark';
+	window.localStorage.setItem('theme', 'light');
+}
+
+if (theme === "dark") {
+    activateDarkTheme();
+} else if (theme === "light") {
+    activateLightTheme();
+} else if  (userPrefers === "light") {
+    activateDarkTheme();
+} else {
+    activateDarkTheme();
+}
+
+activateDarkTheme();
+// function modeSwitcher() {
+// 	let currentMode = document.documentElement.getAttribute('data-theme');
+// 	if (currentMode === "dark") {
+// 	    activateLightTheme();
+// 	} else {
+// 	    activateDarkTheme();
+// 	}
+// }
+</script></div>
+  </div>
+</footer>
+
+
+<script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+  </body>
+
+</html>

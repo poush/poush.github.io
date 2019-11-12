@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Different Types of SQL Commands | Piyush Agrawal</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Different Types of SQL Commands" />
+<meta name="author" content="poush" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Structured Query Language (aka “SQL”) is created for managing RDBMS ( Relational Database Management Systems )" />
+<meta property="og:description" content="Structured Query Language (aka “SQL”) is created for managing RDBMS ( Relational Database Management Systems )" />
+<meta property="og:site_name" content="Piyush Agrawal" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-04-25T09:56:44+02:00" />
+<script type="application/ld+json">
+{"description":"Structured Query Language (aka “SQL”) is created for managing RDBMS ( Relational Database Management Systems )","@type":"BlogPosting","headline":"Different Types of SQL Commands","dateModified":"2017-04-25T09:56:44+02:00","datePublished":"2017-04-25T09:56:44+02:00","url":"/general/windows/2017/04/25/different-types-of-sql.html","mainEntityOfPage":{"@type":"WebPage","@id":"/general/windows/2017/04/25/different-types-of-sql.html"},"author":{"@type":"Person","name":"poush"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" type="image/png" href="/assets/favicon.png" /><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Piyush Agrawal" /><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
+  <link rel="stylesheet" href="/assets/dracula.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body><div class="site-header">
+  <div class="wrapper wrapper-header">
+    <a class="site-title" rel="author" href="/"><span class="muted">~/Users/</span>Piyush Agrawal<b class="command_prompt"></b><b class="blinking_cursor">_</b></a>
+
+    <div class="author-box">
+
+<!-- <img src="https://gravatar.com/avatar/e6e6f4e575ebd10763d358825bd441b5?s=256" class="author-avatar" /> -->
+
+<span style="color: #50BD6A; float:right">A lazy developer on a mission to make life easy.
+</span>
+</div>
+
+  </div>
+</div>
+
+
+<!-- <span class="social_links">
+    <a class="color-cyan-hover" href="https://twitter.com/mepoush"><i class="fab fa-twitter-square"></i></a><a class="color-purple-hover" href="https://github.com/poush"><i class="fab fa-github-square"></i></a>
+</span> -->
+
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+
+        <div class="post">
+  <h1 class="post-title">Different Types of SQL Commands</h1>
+  
+  <div class="post-tags">
+      
+      <a class="tag" href="/tag/sql/">sql</a>
+      
+      <a class="tag" href="/tag/DDL/">DDL</a>
+      
+      <a class="tag" href="/tag/DML/">DML</a>
+      
+      <a class="tag" href="/tag/DCL/">DCL</a>
+      
+  </div>
+  
+  <div class="post-date">Published on 25 Apr 2017</div>
+  
+  <p>Structured Query Language (aka “SQL”) is created for managing RDBMS ( Relational Database Management Systems )</p>
+
+<p>From Wikipedia,</p>
+<blockquote>
+  <p>Originally based upon relational algebra and tuple relational calculus, SQL consists of a data definition language, data manipulation language, and data control language. The scope of SQL includes data insert, query, update and delete, schema creation and modification, and data access control. Although SQL is often described as, and to a great extent is, a declarative language (4GL), it also includes procedural elements.</p>
+</blockquote>
+
+<p>Looks Good!
+In simple terms, we are using SQL to operate our RDBMS and this language has seriously easy syntax.</p>
+
+<p>Now there are different types of SQL commands. ( and yeah! We run commands to operate our RDBMS in SQL)</p>
+<ol>
+  <li>DDL  -  Data Definition Language</li>
+  <li>DML - Data Manipulation Language</li>
+  <li>DCL  - Data Control Language</li>
+</ol>
+
+<p>Till my viva in my college, I wasn’t aware of any third type :D</p>
+
+<h2 id="ddl">DDL</h2>
+<p>DDL provides the standard structure of commands that defines the structure of database objects like tables, indexes. Some of the operations/commands are</p>
+
+<ul>
+  <li>CREATE TABLE</li>
+  <li>ALTER TABLE</li>
+  <li>DROP TABLE</li>
+  <li>CREATE INDEX</li>
+  <li>ALTER INDEX</li>
+  <li>DROP INDEX</li>
+  <li>CREATE VIEW</li>
+  <li>DROP VIEW</li>
+</ul>
+
+<h2 id="dml">DML</h2>
+<p>These commands are used for managing data within schema objects. Some examples:</p>
+
+<ul>
+  <li>INSERT - insert data into a table</li>
+  <li>UPDATE - updates existing data within a table</li>
+  <li>DELETE - deletes all records from a table, the space for the records remain</li>
+</ul>
+
+<h2 id="dcl">DCL</h2>
+<p>These commands manage the access to your database. Generally applied to database users so that you can control the access of other users to your database.</p>
+
+<ul>
+  <li>ALTER PASSWORD</li>
+  <li>GRANT</li>
+  <li>REVOKE</li>
+  <li>CREATE SYNONYM</li>
+</ul>
+
+<p>That’s all summarized for three different types of SQL commands.</p>
+
+<h2 id="wait">Wait!</h2>
+<p>You see SELECT command anywhere? If you are familiar with SQL then you might know about most used command, The “SELECT” command and if you see the lists above you will not find it in any category.  Well there is another category called</p>
+<h3 id="dql---data-query-language">DQL - Data Query language</h3>
+
+<p>Comprises only one command <strong><em>SELECT</em></strong> but is most used and most concentrated for SQL users. With different options and clauses, it is used to make queries (inquiries) to the database.</p>
+
+<p>Take the simple example, when you open a website page then the SELECT queries are made to get user data, website configurations, data to shown on web page. Complex and large data require joins and multiple queries.
+And yes number of queries can be reduced by different techniques but we will discuss it later :)</p>
+
+</div>
+
+
+
+
+
+<div class="related">
+  <h2>related posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/2019/11/12/welcome-to-new-design.html">
+            Welcome to new design!
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/reset-password-in-open-even-api-server/">
+            Reset password in Open Even API Server
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/generating-ticket-pdfs-in-open-event-api-server/">
+            Generating Ticket PDFs in Open Event API Server
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+
+
+
+  
+  <div class="tag-cloud"><a href="/tag/api-server/" class="set-2">API-server</a> <a href="/tag/dcl/" class="set-1">DCL</a> <a href="/tag/ddl/" class="set-1">DDL</a> <a href="/tag/dml/" class="set-1">DML</a> <a href="/tag/httmock/" class="set-1">HTTMock</a> <a href="/tag/oauth/" class="set-1">OAuth</a> <a href="/tag/api/" class="set-2">api</a> <a href="/tag/api-server/" class="set-1">api-server</a> <a href="/tag/design/" class="set-1">design</a> <a href="/tag/endpoints/" class="set-1">endpoints</a> <a href="/tag/event/" class="set-1">event</a> <a href="/tag/express/" class="set-1">express</a> <a href="/tag/flask/" class="set-4">flask</a> <a href="/tag/forgot/" class="set-1">forgot</a> <a href="/tag/fossasia/" class="set-5">fossasia</a> <a href="/tag/gsoc/" class="set-4">gsoc</a> <a href="/tag/guide/" class="set-1">guide</a> <a href="/tag/html/" class="set-1">html</a> <a href="/tag/new/" class="set-1">new</a> <a href="/tag/open/" class="set-1">open</a> <a href="/tag/open-event/" class="set-5">open-event</a> <a href="/tag/oracle-database/" class="set-1">oracle-database</a> <a href="/tag/password/" class="set-1">password</a> <a href="/tag/pdf/" class="set-1">pdf</a> <a href="/tag/permission/" class="set-1">permission</a> <a href="/tag/protecting/" class="set-1">protecting</a> <a href="/tag/python/" class="set-4">python</a> <a href="/tag/reset/" class="set-1">reset</a> <a href="/tag/reset-password/" class="set-1">reset-password</a> <a href="/tag/send/" class="set-1">send</a> <a href="/tag/server/" class="set-2">server</a> <a href="/tag/social-apps/" class="set-1">social-apps</a> <a href="/tag/sql/" class="set-1">sql</a> <a href="/tag/tech/" class="set-4">tech</a> <a href="/tag/tickets/" class="set-1">tickets</a> <a href="/tag/token/" class="set-1">token</a> <a href="/tag/windows/" class="set-1">windows</a> <a href="/tag/xhtml2pdf/" class="set-1">xhtml2pdf</a></div>
+  
+
+
+
+      </div>
+    </main><footer class="site-footer">
+  <div class="wrapper">
+    <div class="credits"><!-- <div class="toggleWrapper">
+    <input type="checkbox" class="dn" id="theme-toggle" onclick="modeSwitcher()" checked />
+    <label for="theme-toggle" class="toggle">
+    <span class="toggle__handler">
+      <span class="crater crater--1"></span>
+      <span class="crater crater--2"></span>
+      <span class="crater crater--3"></span>
+    </span>
+        <span class="star star--1"></span>
+        <span class="star star--2"></span>
+        <span class="star star--3"></span>
+        <span class="star star--4"></span>
+        <span class="star star--5"></span>
+        <span class="star star--6"></span>
+    </label>
+</div> -->
+<script type="text/javascript">
+const theme = localStorage.getItem('theme');
+if (theme === 'undefined') {
+   theme = "dark";
+}
+if (theme === "dark") {
+	document.documentElement.setAttribute('data-theme', 'dark');
+} else {
+    document.documentElement.setAttribute('data-theme', 'light');
+}
+const userPrefers = getComputedStyle(document.documentElement).getPropertyValue('content');
+
+function activateDarkTheme() {
+    // document.getElementById('theme-toggle').checked = true;
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.classList.add('theme--dark');
+    document.documentElement.classList.remove('theme--light');
+	// document.getElementById("theme-toggle").className = 'light';
+	window.localStorage.setItem('theme', 'dark');
+}
+
+function activateLightTheme() {
+    // document.getElementById('theme-toggle').checked = false;
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.classList.add('theme--light');
+    document.documentElement.classList.remove('theme--dark');
+	document.getElementById("theme-toggle").className = 'dark';
+	window.localStorage.setItem('theme', 'light');
+}
+
+if (theme === "dark") {
+    activateDarkTheme();
+} else if (theme === "light") {
+    activateLightTheme();
+} else if  (userPrefers === "light") {
+    activateDarkTheme();
+} else {
+    activateDarkTheme();
+}
+
+activateDarkTheme();
+// function modeSwitcher() {
+// 	let currentMode = document.documentElement.getAttribute('data-theme');
+// 	if (currentMode === "dark") {
+// 	    activateLightTheme();
+// 	} else {
+// 	    activateDarkTheme();
+// 	}
+// }
+</script></div>
+  </div>
+</footer>
+
+
+<script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+  </body>
+
+</html>

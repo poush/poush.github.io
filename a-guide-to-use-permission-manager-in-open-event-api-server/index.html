@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>A guide to use Permission Manager in Open Event API Server | Piyush Agrawal</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="A guide to use Permission Manager in Open Event API Server" />
+<meta name="author" content="poush" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A guide to use Permission Manager in Open Event API Server" />
+<meta property="og:description" content="A guide to use Permission Manager in Open Event API Server" />
+<meta property="og:site_name" content="Piyush Agrawal" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-09-12T00:00:00+02:00" />
+<script type="application/ld+json">
+{"description":"A guide to use Permission Manager in Open Event API Server","@type":"BlogPosting","headline":"A guide to use Permission Manager in Open Event API Server","dateModified":"2017-09-12T00:00:00+02:00","datePublished":"2017-09-12T00:00:00+02:00","url":"/a-guide-to-use-permission-manager-in-open-event-api-server/","mainEntityOfPage":{"@type":"WebPage","@id":"/a-guide-to-use-permission-manager-in-open-event-api-server/"},"author":{"@type":"Person","name":"poush"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" type="image/png" href="/assets/favicon.png" /><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Piyush Agrawal" /><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
+  <link rel="stylesheet" href="/assets/dracula.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body><div class="site-header">
+  <div class="wrapper wrapper-header">
+    <a class="site-title" rel="author" href="/"><span class="muted">~/Users/</span>Piyush Agrawal<b class="command_prompt"></b><b class="blinking_cursor">_</b></a>
+
+    <div class="author-box">
+
+<!-- <img src="https://gravatar.com/avatar/e6e6f4e575ebd10763d358825bd441b5?s=256" class="author-avatar" /> -->
+
+<span style="color: #50BD6A; float:right">A lazy developer on a mission to make life easy.
+</span>
+</div>
+
+  </div>
+</div>
+
+
+<!-- <span class="social_links">
+    <a class="color-cyan-hover" href="https://twitter.com/mepoush"><i class="fab fa-twitter-square"></i></a><a class="color-purple-hover" href="https://github.com/poush"><i class="fab fa-github-square"></i></a>
+</span> -->
+
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+
+        <div class="post">
+  <h1 class="post-title">A guide to use Permission Manager in Open Event API Server</h1>
+  
+  <div class="post-tags">
+      
+      <a class="tag" href="/tag/gsoc/">gsoc</a>
+      
+      <a class="tag" href="/tag/python/">python</a>
+      
+      <a class="tag" href="/tag/open/">open</a>
+      
+      <a class="tag" href="/tag/event/">event</a>
+      
+      <a class="tag" href="/tag/api/">api</a>
+      
+      <a class="tag" href="/tag/server/">server</a>
+      
+      <a class="tag" href="/tag/permission/">permission</a>
+      
+      <a class="tag" href="/tag/guide/">guide</a>
+      
+      <a class="tag" href="/tag/protecting/">protecting</a>
+      
+      <a class="tag" href="/tag/endpoints/">endpoints</a>
+      
+      <a class="tag" href="/tag/flask/">flask</a>
+      
+  </div>
+  
+  <div class="post-date">Published on 12 Sep 2017</div>
+  
+  <p><img src="/public/ZnPzuLKvhpUpxOTCk05cg_img_0.png" alt="image alt text" />A guide to use Permission Manager in Open Event API Server</p>
+
+<p>This article provides a simple guide to use permission manager in <a href="http://github.com/fossasia/open-event-orga-server">Open Event API Server</a>. Permission manager is constantly being improved and new features are being added into it. To ensure that all co-developers get to know about it and make use of them, this blog posts describes every part of permission manager.</p>
+
+<h3 id="bootstrapping">Bootstrapping</h3>
+
+<p>Permission manager as a part of flask-rest-jsonapi works as a decorator for different resources of the API. There are two ways to provide the permission decorator to any view</p>
+
+<ul>
+  <li>
+    <p>First one is to provide it in the list of decorators</p>
+
+    <ul>
+      <li>
+        <p>decorators = (api.has_permission(‘is_coorganizer’, fetch=”event_id”,</p>
+      </li>
+      <li>
+        <p>fetch_as=”event_id”, model=StripeAuthorization),)</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Second way is to explicitly provide it as a decorator to any view</p>
+
+    <ul>
+      <li><strong>@api.has_permission</strong>(‘custom_arg’, custom_kwargs=’custom_kwargs’)
+  <strong>def</strong> get(*args, <strong>kwargs):
+  **return</strong> ‘Hello world !’</li>
+    </ul>
+  </li>
+</ul>
+
+<p>In the process of booting up, we first need to understand the flow of Resources in API. All resources even before doing any schema check, call the decorators. So this way you will not get any request data in the permission methods. All you will receive is a <strong>dict</strong> of the URL parameters but again it will not include the filter parameters.</p>
+
+<p>Permission Manager receives five parameters as:</p>
+
+<p><strong>def **</strong>permission_manager**(view, view_args, view_kwargs, *args, **kwargs):</p>
+
+<p>First three are provided into it implicitly by <a href="https://flask-rest-jsonapi.readthedocs.io/">flask-rest-jsonapi</a> module</p>
+
+<ul>
+  <li>
+    <p><strong>v</strong><strong>iew: **This is the resource’s view method which is called through the API. For example if I go to */events *then the **get</strong> method of <strong>ResourceList</strong> will be called.</p>
+  </li>
+  <li>
+    <p><strong>v</strong>**iew_args: **These are args associated with that view</p>
+  </li>
+  <li>
+    <p><strong>v</strong>**iew_kwargs: **These are kwargs associated with that resource view. It includes all your URL parameters as well</p>
+  </li>
+  <li>
+    <p><strong>a</strong><strong>rgs: **These are the custom args which are provided when calling the permission manager. Here at permission manager is it expected that the first index of **args</strong> will be the name of permission to check for.</p>
+  </li>
+  <li>
+    <p><strong>k</strong>**wargs: **This is the custom dict which is provided on calling the permission manager. The main pillar of the permission manager. Described below in usage.</p>
+  </li>
+</ul>
+
+<h3 id="using-permission-manager">Using Permission Manager</h3>
+
+<p>Using permission manager is basically understanding the different options you can send through the <strong>kwargs</strong> so here is the list of the things you can send to permission manager</p>
+
+<p>These are all described in the order of priority in permission manager</p>
+
+<ol>
+  <li>
+    <p><strong>m</strong><strong>ethod (string)</strong>: You can provide a string containing the methods where permission needs to be checked as comma separated values of different methods in a string.
+For example: <strong><em>method=</em></strong><em>“GET,POST”</em></p>
+  </li>
+  <li>
+    <p><strong>l</strong>**eave_if (lambda): **This receives a lambda function which should return boolean values. Based on returned value if is true then **it will skip the permission check. **The provided lambda function receives only parameter, *“view_kwargs”
+*Example use case can be the situation where you can leave the permission for any specific related endpoint to some resource and would like to do a manual check in the method itself.</p>
+  </li>
+  <li>
+    <p><strong>c</strong><strong>heck (lambda): **Opposite to leave_if. It receives a lambda function that will return boolean values. Based on returned value, If it is true then only it will go further and check the request for permissions else **will throw forbidden error.</strong></p>
+  </li>
+  <li>
+    <p><strong>f</strong><strong>etch (string): **This is the string containing the name of the key which has to be fetched for **fetch_as **key (described below). Permission manager will first look for this value in **view_kwargs</strong> dict object. If it is not there then it will make the query to get one(described below at <strong>model )</strong></p>
+  </li>
+  <li>
+    <p><strong>f</strong><strong>etch_as (string): **This is the string containing the name of a key. The value of **fetch</strong> key will be sent to the permission functions by this name.</p>
+  </li>
+  <li>
+    <p><strong>m</strong><strong>odel (string): **This is one most interesting concept here. To get the value of **fetch **key. Permission manager first looks into **view_kwargs **and if there no such value then you can still get one through the model. The model attribute here receives the class of the database model which will be used to get the value of **fetch</strong> key.
+It makes the query to get the single resource from this model and look for the value of <strong>fetch</strong> key and then pass it to the permission functions/methods.</p>
+  </li>
+</ol>
+
+<p>The interesting part is that by default it uses &lt;*id&gt; *from view_kwargs to get the resource from the model but in any case if there is no specific ID with name <id> on the view_kwargs. You can use these two options as:</id></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. **f****etch_key_url (string): **This is the name of the key whose value will be fetched from view_kwargs and will be used to match through the records in database model to get the resource.
+
+2. **f****etch_key_model (string):** This is the name of the match column in the database model for the **fetch_key_url**, The value of it will be matched with column named as the value of **fetch_key_model.**
+</code></pre></div></div>
+
+<p><strong>In case there is no record found in the model then permission manager will throw NotFound 404 Error.</strong></p>
+
+<h3 id="a-helper-for-permissions">A helper for permissions</h3>
+
+<p>The next big thing in permission manager is the addition of new helper function “has_access”</p>
+
+<p><strong>def **</strong>has_access**(access_level, **kwargs):</p>
+
+<p>**if **access_level **in **permissions:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   auth = permissions[access_level](**lambda ***a, **b: True, (), {}, (), **kwargs)
+
+   **if **type(auth) **is **bool **and **auth **is **True:
+
+       **return **True
+</code></pre></div></div>
+
+<p>**return **False</p>
+
+<p>This method allows you to check the permission at the mid of any method of any view and of any resource. Just provide the name of permission in the first parameter and then the additional options needed by the permission function as the **kwargs **values.</p>
+
+<p><strong>This does not throw any exception</strong>. Just returns the boolean value so take care of throwing any exception by yourselves.</p>
+
+<h3 id="anything-to-improve-on">Anything to improve on?</h3>
+
+<p>I will not say this exactly as improvement but I would really like to make it more meaningful and interesting to add permission. May be something like this below:</p>
+
+<p>permission = “Must be co_organizer OR track_organizer, fetch event_id as event_id, use model Event”</p>
+
+<p>This clearly needs time to make it. But I see this as an interesting way to add permission. Just provide meaningful text and rest leave it to the permission manager.</p>
+
+<h3 id="resources">Resources:</h3>
+
+<ul>
+  <li>Permission manager - Flask-rest-jsonapi module
+<a href="http://flask-rest-jsonapi.readthedocs.io/en/latest/permission.html">http://flask-rest-jsonapi.readthedocs.io/en/latest/permission.html</a></li>
+</ul>
+
+
+</div>
+
+
+
+
+
+<div class="related">
+  <h2>related posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/2019/11/12/welcome-to-new-design.html">
+            Welcome to new design!
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/reset-password-in-open-even-api-server/">
+            Reset password in Open Even API Server
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/generating-ticket-pdfs-in-open-event-api-server/">
+            Generating Ticket PDFs in Open Event API Server
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+
+
+
+  
+  <div class="tag-cloud"><a href="/tag/api-server/" class="set-2">API-server</a> <a href="/tag/dcl/" class="set-1">DCL</a> <a href="/tag/ddl/" class="set-1">DDL</a> <a href="/tag/dml/" class="set-1">DML</a> <a href="/tag/httmock/" class="set-1">HTTMock</a> <a href="/tag/oauth/" class="set-1">OAuth</a> <a href="/tag/api/" class="set-2">api</a> <a href="/tag/api-server/" class="set-1">api-server</a> <a href="/tag/design/" class="set-1">design</a> <a href="/tag/endpoints/" class="set-1">endpoints</a> <a href="/tag/event/" class="set-1">event</a> <a href="/tag/express/" class="set-1">express</a> <a href="/tag/flask/" class="set-4">flask</a> <a href="/tag/forgot/" class="set-1">forgot</a> <a href="/tag/fossasia/" class="set-5">fossasia</a> <a href="/tag/gsoc/" class="set-4">gsoc</a> <a href="/tag/guide/" class="set-1">guide</a> <a href="/tag/html/" class="set-1">html</a> <a href="/tag/new/" class="set-1">new</a> <a href="/tag/open/" class="set-1">open</a> <a href="/tag/open-event/" class="set-5">open-event</a> <a href="/tag/oracle-database/" class="set-1">oracle-database</a> <a href="/tag/password/" class="set-1">password</a> <a href="/tag/pdf/" class="set-1">pdf</a> <a href="/tag/permission/" class="set-1">permission</a> <a href="/tag/protecting/" class="set-1">protecting</a> <a href="/tag/python/" class="set-4">python</a> <a href="/tag/reset/" class="set-1">reset</a> <a href="/tag/reset-password/" class="set-1">reset-password</a> <a href="/tag/send/" class="set-1">send</a> <a href="/tag/server/" class="set-2">server</a> <a href="/tag/social-apps/" class="set-1">social-apps</a> <a href="/tag/sql/" class="set-1">sql</a> <a href="/tag/tech/" class="set-4">tech</a> <a href="/tag/tickets/" class="set-1">tickets</a> <a href="/tag/token/" class="set-1">token</a> <a href="/tag/windows/" class="set-1">windows</a> <a href="/tag/xhtml2pdf/" class="set-1">xhtml2pdf</a></div>
+  
+
+
+
+      </div>
+    </main><footer class="site-footer">
+  <div class="wrapper">
+    <div class="credits"><!-- <div class="toggleWrapper">
+    <input type="checkbox" class="dn" id="theme-toggle" onclick="modeSwitcher()" checked />
+    <label for="theme-toggle" class="toggle">
+    <span class="toggle__handler">
+      <span class="crater crater--1"></span>
+      <span class="crater crater--2"></span>
+      <span class="crater crater--3"></span>
+    </span>
+        <span class="star star--1"></span>
+        <span class="star star--2"></span>
+        <span class="star star--3"></span>
+        <span class="star star--4"></span>
+        <span class="star star--5"></span>
+        <span class="star star--6"></span>
+    </label>
+</div> -->
+<script type="text/javascript">
+const theme = localStorage.getItem('theme');
+if (theme === 'undefined') {
+   theme = "dark";
+}
+if (theme === "dark") {
+	document.documentElement.setAttribute('data-theme', 'dark');
+} else {
+    document.documentElement.setAttribute('data-theme', 'light');
+}
+const userPrefers = getComputedStyle(document.documentElement).getPropertyValue('content');
+
+function activateDarkTheme() {
+    // document.getElementById('theme-toggle').checked = true;
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.classList.add('theme--dark');
+    document.documentElement.classList.remove('theme--light');
+	// document.getElementById("theme-toggle").className = 'light';
+	window.localStorage.setItem('theme', 'dark');
+}
+
+function activateLightTheme() {
+    // document.getElementById('theme-toggle').checked = false;
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.classList.add('theme--light');
+    document.documentElement.classList.remove('theme--dark');
+	document.getElementById("theme-toggle").className = 'dark';
+	window.localStorage.setItem('theme', 'light');
+}
+
+if (theme === "dark") {
+    activateDarkTheme();
+} else if (theme === "light") {
+    activateLightTheme();
+} else if  (userPrefers === "light") {
+    activateDarkTheme();
+} else {
+    activateDarkTheme();
+}
+
+activateDarkTheme();
+// function modeSwitcher() {
+// 	let currentMode = document.documentElement.getAttribute('data-theme');
+// 	if (currentMode === "dark") {
+// 	    activateLightTheme();
+// 	} else {
+// 	    activateDarkTheme();
+// 	}
+// }
+</script></div>
+  </div>
+</footer>
+
+
+<script>
+      window.FontAwesomeConfig = {
+        searchPseudoElements: true
+      }
+    </script>
+  </body>
+
+</html>
