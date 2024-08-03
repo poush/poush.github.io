@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.google.mapi",
+    "sha256_cert_fingerprints":
+    ["8C:BD:1C:75:50:3E:0E:46:9A:A1:9A:11:6D:FD:FD:B4:06:BC:03:0D:71:5F:84:6D:DD:20:D8:99:21:9F:D7:2A"]
+  }
+}]
